@@ -1,0 +1,75 @@
+.portada {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.gif-full {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.portada h1 {
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 48px;
+    text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
+    z-index: 3;
+    text-align: center;
+}
+
+.menu-btn {
+    font-size: 32px;
+    cursor: pointer;
+    padding: 15px;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 6;
+    color: white;
+}
+
+.sidebar {
+    width: 260px;
+    background: #0b132b;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: -260px;
+    transition: left 0.35s ease;
+    padding-top: 80px;
+    z-index: 5;
+}
+
+#menu-toggle:checked ~ .sidebar {
+    left: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 22px;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    transition: background 0.25s;
+}
+
+.sidebar li a:hover {
+    background: #1c2541;
+}
