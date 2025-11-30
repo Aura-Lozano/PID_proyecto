@@ -1,5 +1,79 @@
 <html>
 <head>
+<body class="HOWTO">
+    <div class="cuadrados1">
+        <div class="cuadrado">
+            <h2>
+                Define tu microcontroladora
+            </h2>
+        </div>
+
+        <div class="cuadrado">
+             <h2>
+                Define tus esc's y motores
+            </h2>
+        </div>
+        <div class="cuadrado">
+             <h2>
+                Define tu banco de pruebas
+            </h2>
+        </div>
+        <div class="cuadrado">
+             <h2>
+                Conexiones y cableado
+            </h2>
+        </div>
+        <div class="cuadrado">
+             <h2>
+                Codifica y túnea tu PID
+            </h2>
+        </div>
+    </div>
+    <div class="cuadrados2">
+        <div class="cuadrado2">
+            <h3>
+                Esto es muy importante porque influirá en la capacidad de respuesta de tu PID lo cual sabemos que en este tipo de situaciones es crítico.
+                Si seleccionas una microcontroladora lenta es probable que el control PID diverga o converga lentamente debido a la acumulación creciente del error.
+            
+            </h3>
+            <img src="C:\Users\Ci5\Desktop\proyecto_programacion\proyecto_programacion\imagenes\MCU.png" class="IMGHTB">
+        </div>
+
+        <div class="cuadrado2">
+             <h3>
+                En este paso debes verificar que tu esc esté calificada para funcionar a la corriente que jala el motor, además se debe revisar
+                el datasheet de los motores con diferentes propelas y baterías con distinto voltaje para tener una noción de que combinación es adecuada y
+                no me daña ni la esc ni el motor.
+            </h3>
+            <img src="C:\Users\Ci5\Desktop\proyecto_programacion\proyecto_programacion\imagenes\MOTOP.WEBP" class="IMGHTB">
+        </div>
+        <div class="cuadrado2">
+             <h3>
+                Hay diferentes tipos de bancos de prueba para validar tu PID, algunos funcionan como un balancín mientras que otros son del estilo de ejes.
+                Adicionalmente hay algunos que validan todos los modos de rotación del dron mientras que otros no. Esto también depende del tipo de PID que
+                se plantea implementar y la aplicación, no es lo mismo un motor y una pesa que utilizando dos motores a la vez.
+            </h3>
+            <img src="C:\Users\Ci5\Desktop\proyecto_programacion\proyecto_programacion\imagenes\subibaja.png" class="IMGHTB">
+        </div>
+        <div class="cuadrado2">
+             <h3>
+                Esta parte es mejor observarla con un esquema. Pero la idea general es conectar la señal de la ESC a la microcontroladora.
+            </h3>
+            <img src="C:\Users\Ci5\Desktop\proyecto_programacion\proyecto_programacion\imagenes\EsqPID.png" class="IMGHTB">
+        </div>
+        <div class="cuadrado2">
+             <h3>
+                Esta parte también es muy relevante pues de esto depende la precisión de tu PID y las posteriores ganancias que funcionan mejor para el caso dado.
+                el entorno de desarrollo también depende en gran medida de la microcontroladora.
+            </h3>
+            <img src="C:\Users\Ci5\Desktop\proyecto_programacion\proyecto_programacion\imagenes\CODE.jpg" class="IMGHTB">
+        </div>
+    </div>
+    <div class="construirPID">
+    <h1 class="PID">
+        ¿Cómo construir tu PID?
+    </h1>
+    
     <title>Proyecto de programación</title>
     <link rel="stylesheet" href="../estilos/estilos.css">
 </head>

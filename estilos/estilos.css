@@ -73,3 +73,121 @@
 .sidebar li a:hover {
     background: #1c2541;
 }
+
+/* ESTILOS DE LA VISTA "como concnurntr eturgi tu PID" */
+
+
+
+.HOWTO{
+    display:block;
+    background-color: #0b132b;
+}
+
+
+.construirPID {
+    position: relative;
+    width: 100%;
+}
+
+.PID  {
+    display:flex;
+    border-radius: 10px;
+    font-size: 50px;
+    background-color: rgba(101, 255, 178, 0.438);
+    position: relative;
+    width: 630px;
+    left: 350px;
+    margin-top:-750px;
+    color:rgb(218, 218, 218);
+}
+.cuadrados1{
+    justify-content: center;
+    position: relative;
+    display: flex;
+    margin-top:200px;
+    align-items: center;
+    
+    gap: 10px;
+}
+
+.cuadrado {
+    width: 250px;
+    height: 8%;
+    background: rgba(67, 111, 255, 0.699);
+    border-radius: 10px;
+    top: 100px;
+}
+.cuadrado h2 {
+    align-self: center;
+    text-align: center;
+
+}
+.cuadrados2{
+    
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin-top: 20px;
+    gap: 10px;
+}
+.cuadrado2 {
+    width: 250px;
+    align-self: center;
+    align-items: center;
+    text-align: center;
+    height: 500px;
+    background: rgb(93, 131, 255);
+    border-radius: 10px;
+    top: 90px;
+}
+.IMGHTB{
+        width: 100%; 
+        margin-top: -5px; 
+        border-radius: 6px;
+    }
+
+    /*estilos de la vista conceptos*/
+
+.cptos{
+    background-color: steelblue;
+    
+}
+.t1{
+    width:800px;
+    left:-80px;
+    top: -220px;
+    position:relative;
+    text-align: center;
+    border-radius: 10px;
+    background-color: aquamarine; 
+
+}
+.text{
+    position: relative;
+}
+.texto1{
+    display:flex;
+    align-self: center;
+    text-align: center;
+    align-items: center;
+    position: relative;
+    width: 400px;
+    height: 80px;
+    right: 850px;
+    border-radius: 10px;
+    background-color: bisque;
+}
+.texto2{
+    display:flex;
+    align-self: center;
+    text-align: center;
+    align-items: center;
+    position: relative;
+    top:100px;
+    width: 150px;
+    height: 100px;
+    right: 800px;
+    border-radius: 10px;
+    background-color: bisque;
+}
+
