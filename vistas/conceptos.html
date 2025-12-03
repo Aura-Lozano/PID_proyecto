@@ -33,14 +33,56 @@
             Proportional, integrative and derivative
             </h2>
         </div>
-        <div class="texto2"><h3>
+        <div class="texto2">
+            <h3>
             ¿En que consiste?
-        </h3></div>
+            </h3>
+        </div>
         <div class="texto3"><h3>
-            Partes
+            El PID consiste de varias partes, el setpoint, el error, el integral, el derivativo, el proporcional
+            y las ganancias, y todas esas partes contribuyen al funcionamiento del control PID a través de loops de
+            retroalimentación propios del sistema.
         </h3>
         </div>
-        
+        <div class="texto4"><h3>
+            El <b>error</b> es la diferencia que hay entre el estado real del sistema y el setpoint al que queremos que llegue.
+        </h3>
+        </div>
+        </div>
+        <div class="texto5"><h3>
+            El <b>setpoint</b> es el punto al que queremos que nuestro sistema llegue, en el caso de la estabilización del dron
+            es deseable que setpoint sea un angulo de 0°
+        </h3>
+        </div>
+        <div class="texto6"><h3>
+            las <b>ganancias</b> son diferentes valores o constantes que ayudan a estabilizar nuestro sistema, de acuerdo al funcionamiento de
+            cada parte del PID a veces es sensato tener valores pequeños o grandes de acuerdo a las caracteristicas del sistema y el tipo de respuesta que 
+            deseamos
+        </h3>
+
+        </div>
+         <div class="t2">
+        <h2>
+            ¿Como entender tus gráficas de PID?
+        </h2>
+        <img src="C:\Users\Ci5\Desktop\PID_proyecto\imagenes\Pidgra.png" class="PIDMG">
+    </div>
+    <div class="bont">
+        <div class="bonta">
+                Este es el comportamiento general de una gráfica de PID, al iniciar se encuentra con un error 
+                grande el cual corrige de más lo que vuelve a generar un error y repite el proceso hasta que
+                converga a un valor cercano al setpoint
+        </div>
+        <div class="bonta">
+            En algunos sistemas PID la oscilación casi no se llega a notar porque el error se corrige de manera muy
+            inmediata y se nota más como una especie de "colina" la cual converge a un valor rápidamente. En otros sistemas
+            considerando las ganacias es posible que el sistema diverga y jamás se corrija el error
+        </div>
+        <div class="bonta">
+            Al pasar el tiempo la gráfica converge a un valor pero sigue oscilando en menor medida, es decir nunca es
+            exacto, siempre va a haber un residuo o error en el PID. 
+        </div>
+    </div>
         <p>
             yaju
         </p>

@@ -154,8 +154,8 @@
 }
 .t1{
     width:800px;
-    left:-80px;
-    top: -220px;
+    left:250px;
+    top: -600px;
     position:relative;
     text-align: center;
     border-radius: 10px;
@@ -167,13 +167,14 @@
 }
 .texto1{
     display:flex;
+    top:-500px;
     align-self: center;
     text-align: center;
     align-items: center;
     position: relative;
     width: 400px;
     height: 80px;
-    right: 850px;
+    left: 240px;
     border-radius: 10px;
     background-color: bisque;
 }
@@ -183,11 +184,93 @@
     text-align: center;
     align-items: center;
     position: relative;
-    top:100px;
+    top:-470px;
     width: 150px;
-    height: 100px;
-    right: 800px;
+    height: 50px;
+    right: -260px;
     border-radius: 10px;
     background-color: bisque;
 }
+.texto3{
+    display:flex;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    background-color: chartreuse;
+    border-radius: 10px;
+    width: 600px;
+    top:-450px;
+    height:100px;
+    right:-280px;
+}
+.texto4{
+    display:flex;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    background-color: chartreuse;
+    border-radius: 10px;
+    width: 600px;
+    top:-440px;
+    height:100px;
+    right:-280px;
+}
+.texto5{
+    display:flex;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    background-color: chartreuse;
+    border-radius: 10px;
+    width: 600px;
+    top:-430px;
+    height:100px;
+    right:-280px;
+}
+.texto6{
+    display:flex;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    background-color: chartreuse;
+    border-radius: 10px;
+    width: 600px;
+    top:-420px;
+    height:100px;
+    right:-280px;
+}
+.t2{
+    width:500px;
+    left:250px;
+    top: -400px;
+    position:relative;
+    text-align: center;
+    border-radius: 10px;
+    background-color: bisque;
+}
+.PIDMG{
+     width: 100%; 
+        margin-top: -5px; 
+        border-radius: 6px;
 
+}
+.bont{
+      justify-content: center;
+    position: relative;
+    align-items: center;
+    display:flex;
+    flex-direction: column;
+    gap: 20px;
+    top:-800px;
+    left:250px;
+
+
+
+}
+.bonta{
+    width: 270px;
+    height: 8%;
+    background: rgba(5, 96, 102, 0.699);
+    border-radius: 10px;
+    top: 100px;
+}
