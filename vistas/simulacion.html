@@ -177,7 +177,7 @@
         let pidChart;
         let isChartActive = true; 
         
-        //FUNCIÓN DE ANÁLISIS AVANZADO
+        // ANÁLISIS
         window.analyzeData = function(isAuto = false) {
             const chart = Chart.getChart("pid-chart"); 
             const resultsPanel = document.getElementById('analysis-results');
@@ -206,7 +206,7 @@
 
             const rmse = Math.sqrt(sumSquareError / n); 
 
-            //Sobredisparo
+            
             let overshootInfo = "";
             if (Math.abs(finalSetpoint) < 0.5) {
                 const maxDev = Math.max(Math.abs(peakVal), Math.abs(minVal));
@@ -240,7 +240,7 @@
             else if (stableSamples < 5) stabilityText = "<span style='color:red'>Inestable / No converge</span>";
             else stabilityText = `Estable hace ${estimatedTimeStable}s`;
 
-            //Análisis de la gráfica
+            //Gráfica
             const htmlContent = `
                 <h3>📊 REPORTE DE INGENIERÍA PID</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -283,7 +283,7 @@
         };
 
 
-        //FUNCIONES DE THREE.JS 
+        
         function init() {
             scene = new THREE.Scene();
             scene.fog = new THREE.Fog(0x87CEEB, 1, 300); 
@@ -305,7 +305,7 @@
             directionalLight.position.set(5, 10, 7.5);
             scene.add(directionalLight);
             
-            //Suelo y Bosque
+            //Suelo y Bosque ambiente
             const groundGeometry = new THREE.PlaneGeometry(500, 500);
             const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x404d30 }); 
             const ground = new THREE.Mesh(groundGeometry, groundMaterial);
@@ -394,16 +394,16 @@
             if (!isSimulationRunning) return; 
             let velocity = new THREE.Vector3();
 
-            //CONFIGURACIÓN VISUAL DINÁMICA (Efecto temblor si hay mucho error)
+            
             const errorMagnitude = Math.abs(desiredAngle - currentRealAngle);
             const rotationSpeedSmoothness = errorMagnitude > 5 ? 0.6 : 0.1; 
 
-            //Control de Altura
+        
             const targetY = minHeight + (currentThrottle / 100) * (targetHeight - minHeight);
             drone.position.y += (targetY - drone.position.y) * 0.05; 
             if (drone.position.y < minHeight) drone.position.y = minHeight;
 
-            //Movimiento Manual
+            //Movimiento Manual Teclas
             if (keys['W']) velocity.z -= manualMoveSpeed * deltaTime; 
             if (keys['S']) velocity.z += manualMoveSpeed * deltaTime;
             if (keys['A']) velocity.x -= manualMoveSpeed * deltaTime * 0.5; 
@@ -423,15 +423,14 @@
                 //Cálculo PID
                 const pidOutput = pidController.calculate(desiredAngle, currentRealAngle, deltaTime);
 
-                //output -> cambio de ángulo
+                
                 const angleChange = pidOutput * deltaTime;
                 currentRealAngle += angleChange;
                 
-                //Límites Visuales (Clamp) - Ampliado a 60 para ver la caída
+                
                 currentRealAngle = Math.max(-60, Math.min(60, currentRealAngle));
                 
-                //AUTO-STOP DE EMERGENCIAw
-                // Si el ángulo pasa de 45 grados, parar todo.
+                //AUTO-STOP 
                 if (Math.abs(currentRealAngle) > 45) {
                     isSimulationRunning = false; 
                     
@@ -463,11 +462,11 @@
                 targetPitchRadians = currentRealAngle * (Math.PI / 180);
             }
 
-            //Aplicar rotación visual 
+            
             drone.rotation.x += (targetPitchRadians - drone.rotation.x) * rotationSpeedSmoothness;
             drone.rotation.z += (targetRollRadians - drone.rotation.z) * rotationSpeedSmoothness;
 
-            //Actualizar UI
+            
             const slider = document.getElementById('simulated-angle-slider');
             if (slider) slider.value = currentRealAngle;
             updateDisplay('simulated-angle', currentRealAngle);
@@ -482,7 +481,7 @@
             camera.lookAt(drone.position);
         }
 
-        //MANEJO DE EVENTOS Y UI
+        
         function togglePIDMode() {
             pidModeActive = !pidModeActive;
             const statusDisplay = document.getElementById('sim-status');
