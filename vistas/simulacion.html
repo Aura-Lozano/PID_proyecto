@@ -110,21 +110,22 @@
                 this.minOutput = minOutput;
                 this.maxOutput = maxOutput;
 
-                this.lastError = 0;
-                this.integral = 0;
+                this.lastError = 0; //Error de la última vez analizada 
+                this.integral = 0; //Acumulación de los errores pequeños 
             }
-
+// Esta función se mueve al usar los sliders 
             setGains(Kp, KiSlider, Kd) {
                 this.Kp = Kp;
+                //Dividimos por 100 porque regularmente este suele ser un número pequeño
                 this.Ki = KiSlider / 1000; 
                 this.Kd = Kd;
                 this.integral = 0; 
             }
-
+// Setpoint: a donde quiero llegar, measuredvalue: donde estoy realmente, deltaTime: Tiuempo que pasó desde la ultima vez
             calculate(setpoint, measuredValue, deltaTime) {
-                if (deltaTime <= 0) return 0;
+                if (deltaTime <= 0) return 0; // si el tiempo se detuvo no se hace nada para evitar errores matemáticos 
 
-                const error = setpoint - measuredValue;
+                const error = setpoint - measuredValue; // error, lo que nos falta para llegar a nuestro valor deseado 
                 
                 //Término Proporcional
                 const proportionalTerm = this.Kp * error;
@@ -136,39 +137,43 @@
                     this.integral = 0;
                 }
                 
-                //Anti-Windup
+                //Anti-Windup, para que la integral no se sature fijamos máximo 
                 this.integral = Math.max(-20, Math.min(20, this.integral));
                 const integralTerm = this.Ki * this.integral;
 
-                //Término derivativo
+                //Término derivativo, que tan rápido me acerco o me alejo 
                 const derivative = (error - this.lastError) / deltaTime;
                 const derivativeTerm = this.Kd * derivative;
-
+//Sumamos las tres ganancias para obtener la fuerza total
                 let output = proportionalTerm + integralTerm + derivativeTerm;
 
                 //Restricción de salida
                 output = Math.max(this.minOutput, Math.min(this.maxOutput, output));
 
-                //Actualizar error
+                //Actualizar error, guardarlo para que sea el nuevo error en la siguiente iteración.
                 this.lastError = error;
 
                 return output;
             }
         }
-        
-        //Variables Globales 
+        //Preparamos el escenario de simulación 
+
+        //Variables Globales, elementos de Three.js
         let scene, camera, renderer;
         let drone;
-        let keys = {}; 
+        let keys = {}; //para mover el dron  
         let clock = new THREE.Clock();
+        // configuración de velocidades manuales 
         const manualMoveSpeed = 10; 
         const manualRotationSpeed = 0.02;
-        let desiredAngle = 0; 
-        let currentRealAngle = 0; 
-        let currentThrottle = 50; 
-        const targetHeight = 10; 
-        const minHeight = 2; 
-        
+        //Condiciones de simulación 
+        let desiredAngle = 0; // lo que el usuario desea 
+        let currentRealAngle = 0; // inclinacion real del dron
+        let currentThrottle = 50; //Potencia 
+        const targetHeight = 10; //Altura máxima 
+        const minHeight = 2; //Altura mínima 
+
+        // Se inicializa con valores por defecto 
         let pidController = new PIDController(0.5, 0.0005, 0.1, -400, 400); 
         let pidModeActive = true; 
         let isSimulationRunning = true; 
@@ -179,47 +184,50 @@
         
         // ANÁLISIS
 
-        // Está función analiza de la gráfica que tan bien voló el dron. Revisa si fue estable y si alcanzó o no el ángulo deseado 
+        // Está función analiza de la gráfica, que tan bien voló el dron. Revisa si fue estable y si alcanzó o no el ángulo deseado 
         window.analyzeData = function(isAuto = false) {
             const chart = Chart.getChart("pid-chart"); 
             const resultsPanel = document.getElementById('analysis-results');
-
+//Ciclo if en el caso de que la gráfica este vacía 
             if (!chart || !chart.data.datasets[0].data.length) {
                 if(!isAuto) alert("No hay suficientes datos aún.");
                 return;
             }
-
+//Datos obtenidos, la línea verde representa a lo que se quiere llegar mientras que la línea roja lo que esta sucediendo 
             const desiredData = chart.data.datasets[0].data; 
             const realData = chart.data.datasets[1].data;    
             const n = desiredData.length;
+            //Comparar con la última orden dada por el usuario
             const finalSetpoint = desiredData[n - 1]; 
             
             //Cálculos de Error
-            let sumSquareError = 0;
-            let peakVal = -Infinity;
-            let minVal = Infinity;
-
+            let sumSquareError = 0; //Que tanto tembló el dron 
+            let peakVal = -Infinity; // El pico más alto al que llegó
+            let minVal = Infinity; // El pico más bajo al que llegó 
+// Recorrido de todo el historial de simulación 
             for (let i = 0; i < n; i++) {
                 const error = desiredData[i] - realData[i];
-                sumSquareError += (error * error);
-                if (realData[i] > peakVal) peakVal = realData[i];
-                if (realData[i] < minVal) minVal = realData[i];
+                sumSquareError += (error * error);// suma de errores al cuadrado
+                if (realData[i] > peakVal) peakVal = realData[i]; //En busca de máximos 
+                if (realData[i] < minVal) minVal = realData[i];//En busca de mínimos 
             }
-
+//Qué tan estable fue el vuelo?
             const rmse = Math.sqrt(sumSquareError / n); 
 
-            
+            // Se pasó del setpoint al intentar llegar?
             let overshootInfo = "";
             if (Math.abs(finalSetpoint) < 0.5) {
+                //Si la meta era cero medimos cuanto se alejo del centro 
                 const maxDev = Math.max(Math.abs(peakVal), Math.abs(minVal));
                 overshootInfo = `${maxDev.toFixed(2)}° (Abs)`;
             } else {
+                //Si la meta era un ángulo, calculamos el porcentaje que se pasó
                 const overshootVal = (finalSetpoint > 0) ? (peakVal - finalSetpoint) : (Math.abs(minVal) - Math.abs(finalSetpoint));
                 const percent = Math.max(0, (overshootVal / Math.abs(finalSetpoint)) * 100);
                 overshootInfo = `${percent.toFixed(2)}%`;
             }
 
-            //Error Estacionario
+            //Error Estacionario, llegó a donde queriamos o se quedó cerca? Se promedia el error del último 20% del vuelo
             let steadyStateErrorSum = 0;
             const samplesSteady = Math.floor(n * 0.2) || 1;
             for(let i = n - samplesSteady; i < n; i++) {
@@ -227,16 +235,17 @@
             }
             const steadyStateError = steadyStateErrorSum / samplesSteady;
 
-            //Estabilidad
+            //Estabilidad,  contamos el tiempo que tardó en estabilizarse 
             const tolerance = 1.0; 
             let stableSamples = 0;
+            //se cuenta desde el final hacia atrás cuántos puntos estuvieron buenos 
             for(let i = n - 1; i >= 0; i--) {
                 const diff = Math.abs(desiredData[i] - realData[i]);
-                if(diff > tolerance) break; 
+                if(diff > tolerance) break; // si el error es muy grande se deja de contar
                 stableSamples++;
             }
             const estimatedTimeStable = (stableSamples * 0.02).toFixed(2); 
-            
+            //Se genera el texto que aparece en el reporte o análisis de las gráficas 
             let stabilityText = "";
             if (stableSamples === n) stabilityText = "Estable (Todo el tiempo)";
             else if (stableSamples < 5) stabilityText = "<span style='color:red'>Inestable / No converge</span>";
@@ -277,7 +286,7 @@
             if(isAuto) {
                 console.log("ANÁLISIS DE EMERGENCIA MOSTRADO");
             }
-            
+            //Si se clickea el reporte, se cierra la ventana  
             resultsPanel.onclick = () => {
                 resultsPanel.classList.remove('visible');
                 resultsPanel.style.pointerEvents = 'none';
@@ -294,16 +303,16 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setClearColor(0x000000, 0); 
             document.body.appendChild(renderer.domElement); 
-            
+            //Se fija alfondo para que no se mueva 
             renderer.domElement.style.position = 'fixed';
             renderer.domElement.style.top = '0';
             renderer.domElement.style.left = '0';
             renderer.domElement.style.zIndex = '1';
 
             //Iluminación
-            const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); 
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); //Luz general
             scene.add(ambientLight);
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 3); 
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 3); //Solecito 
             directionalLight.position.set(5, 10, 7.5);
             scene.add(directionalLight);
             
@@ -314,46 +323,49 @@
             ground.rotation.x = -Math.PI / 2;
             ground.position.y = 0;
             scene.add(ground);
+
+            //Plantamos 50 árboles aleatorios 
             createForest(50); 
             
             drone = createDrone();
             scene.add(drone);
             drone.position.set(0, minHeight, 0); 
-            
+            //Para que la cámara siga al dron 
             updateCameraPosition(); 
 
             window.addEventListener('resize', onWindowResize, false);
             document.addEventListener('keydown', onKeyDown, false);
             document.addEventListener('keyup', onKeyUp, false);
-
+//Se activan los sliders y la gráfica 
             setupSliderListeners(); 
             initChart();
             animate();
-            
+           //Bienvenida al usuario  
             showPIDAlert(true); 
         }
-        
+        //Usando la libreria Three.js se definen de que se hará el tronco y las hojas de los árboles del escenario
         function createForest(count) {
              const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 }); 
             const foliageMaterial = new THREE.MeshLambertMaterial({ color: 0x006400 }); 
 
             for (let i = 0; i < count; i++) {
                 const treeGroup = new THREE.Group();
-                
+               //Se aleatoriza la altura y el ancho 
                 const height = 15 + Math.random() * 20;
                 const radius = 0.5 + Math.random() * 0.5;
-
+//Tronco
                 const trunkGeometry = new THREE.CylinderGeometry(radius * 0.2, radius * 0.4, height * 0.7, 8);
                 const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
                 trunk.position.y = height * 0.7 / 2;
                 treeGroup.add(trunk);
-                
+
+                //Hojas 
                 const foliageHeight = height * 0.5;
                 const foliageGeometry = new THREE.ConeGeometry(radius * 2, foliageHeight, 10);
                 const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
                 foliage.position.y = height * 0.7 + foliageHeight / 3; 
                 treeGroup.add(foliage);
-                
+                //Aleatorizamos la posición 
                 const angle = Math.random() * Math.PI * 2;
                 const spawnRadius = 80 + Math.random() * 100;
                 
@@ -372,35 +384,38 @@
             }
             
             animationFrameId = requestAnimationFrame(animate); 
-            
+            //Calculamos el tiempo real entre cuadros
             const deltaTime = clock.getDelta();
             
             updateDroneMovement(deltaTime); 
-            
+            //Si está activos se guardan los cambios nuevos 
             if (pidChart && isChartActive) {
                 updateChart(desiredAngle, currentRealAngle);
             }
-            
+            //Se genera el efecto visual de girar las hélices segun la potencia suministrada
             const propellerSpeed = 5 + (currentThrottle / 100) * 15; 
             drone.traverse((object) => {
                 if (object.userData.isPropeller) {
                     object.rotation.y += propellerSpeed * deltaTime; 
                 }
             });
+            //Se mueve la cámara 
             updateCameraPosition();
             renderer.render(scene, camera);
+            //Actualización en el panel de control
             updatePositionDisplay();
         }
        // Movimiento real del dron en la pantalla de acuerdo al PID 
         function updateDroneMovement(deltaTime) {
             if (!isSimulationRunning) return; 
+            //Vector de movimiento (Adelante/Atrás/Izquierda/Derecha)
             let velocity = new THREE.Vector3();
 
-            
+            // Calculamos qué tan brusco debe ser el movimiento visual
             const errorMagnitude = Math.abs(desiredAngle - currentRealAngle);
             const rotationSpeedSmoothness = errorMagnitude > 5 ? 0.6 : 0.1; 
 
-        
+        //Calculamos a qué altura debemos ir según el Slider de Throttle
             const targetY = minHeight + (currentThrottle / 100) * (targetHeight - minHeight);
             drone.position.y += (targetY - drone.position.y) * 0.05; 
             if (drone.position.y < minHeight) drone.position.y = minHeight;
@@ -411,16 +426,17 @@
             if (keys['A']) velocity.x -= manualMoveSpeed * deltaTime * 0.5; 
             if (keys['D']) velocity.x += manualMoveSpeed * deltaTime * 0.5;
 
+//Le damos movimiento al dron 
             drone.translateX(velocity.x);
             drone.translateZ(velocity.z);
             
             //Yaw
             if (keys['Q']) { drone.rotation.y += manualRotationSpeed; }
             if (keys['E']) { drone.rotation.y -= manualRotationSpeed; }
-            
+            //Variables que declaro para calcular la inclinación 
             let targetPitchRadians = 0;
             let targetRollRadians = 0;
-
+//Si el PID está activo 
             if (pidModeActive) {
                 //Cálculo PID
                 const pidOutput = pidController.calculate(desiredAngle, currentRealAngle, deltaTime);
@@ -435,20 +451,20 @@
                 //AUTO-STOP. Si ya diverge demasiado, para automáticamente la simulación y muestra el análisis en pantalla  
                 if (Math.abs(currentRealAngle) > 45) {
                     isSimulationRunning = false; 
-                    
+                    //Actualizamos el letrero de estado en rojo
                     const statusDisplay = document.getElementById('sim-status');
                     statusDisplay.innerHTML = 'Estado: <span style="color:red"> INESTABLE /span>';
                     
                     console.log("¡Divergencia! Parando simulación...");
                     analyzeData(true);
                     
-                    //Desactivar botón de la gráfica
+                    //Desactivar botón de la gráfica para indicar que se detuvo
                     const btn = document.getElementById('toggle-chart-btn');
                     if(btn) { btn.classList.remove('active'); btn.innerText = "Reanudar gráfica"; }
                     isChartActive = false; 
                     return; 
                 }
-
+// Convertimos el ángulo a radianes para que Three.js lo entienda
                 targetPitchRadians = currentRealAngle * (Math.PI / 180);
 
                 //Perturbaciones. Al presionar las flechas perturbas el dron y el objetivo es observar si el PID es capaz de recuperarse 
@@ -456,6 +472,7 @@
                 if (keys['ARROWRIGHT']) currentRealAngle -= 80 * deltaTime;
 
             } else {
+                // Esto sirve para probar cómo se mueve el dron sin ayuda
                 let manualAngle = 0;
                 if (keys['W']) manualAngle = 15;
                 if (keys['S']) manualAngle = -15;
@@ -464,7 +481,8 @@
                 targetPitchRadians = currentRealAngle * (Math.PI / 180);
             }
 
-            
+          // Aquí es donde realmente rotamos el dibujo del dron en la pantalla
+            // rotationSpeedSmoothness decide qué tan rápido se ve la animación  
             drone.rotation.x += (targetPitchRadians - drone.rotation.x) * rotationSpeedSmoothness;
             drone.rotation.z += (targetRollRadians - drone.rotation.z) * rotationSpeedSmoothness;
 
@@ -475,15 +493,24 @@
         }
 
         function updateCameraPosition() {
+            //hace que la cámara siga al dron suavemente, como en un videojuego de tercera persona
             if (!drone) return;
+            // Definimos dónde queremos que esté la cámara RELATIVO al dron:
+            // 0 metros a los lados, 5 metros arriba, 10 metros atrás.
             const cameraOffset = new THREE.Vector3(0, 5, 10); 
+            // Aplicamos la rotación del dron al offset (para que si el dron gira, la cámara gire con él)
             cameraOffset.applyQuaternion(drone.quaternion); 
+            //se calcula la posicion final 
             const targetCameraPosition = drone.position.clone().add(cameraOffset);
-            camera.position.lerp(targetCameraPosition, 0.05); 
+            //Mueve la cámara un 5% (0.05) hacia el objetivo en cada cuadro.
+            // Esto crea ese efecto de "suavidad" y retraso cinematográfico
+            camera.position.lerp(targetCameraPosition, 0.05);
+            
+            //Para que la cámara mire siempre al centro del dron 
             camera.lookAt(drone.position);
         }
 
-        
+        // Se activa con la tecla 'P' o el botón. Prende o apaga el cerebro PID
         function togglePIDMode() {
             pidModeActive = !pidModeActive;
             const statusDisplay = document.getElementById('sim-status');
@@ -501,7 +528,7 @@
                 angleSlider.disabled = false; 
             }
         }
-        
+        // Muestra el letrero flotante de "PID ACTIVADO/DESACTIVADO" por 3 segundos
         function showPIDAlert(visible) {
             const alertBox = document.getElementById('pid-mode-alert');
             alertBox.classList.toggle('visible', visible);
@@ -519,19 +546,20 @@
         function onKeyUp(event) {
             keys[event.key.toUpperCase()] = false;
         }
-        
+        //Se ajusta la proporción para que el escenario no se vea estirado 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
-
+// Actualiza el texto de coordenadas X, Y, Z
         function updatePositionDisplay() {
             const pos = drone.position;
             const display = document.getElementById('position-display');
             if (display) display.textContent = `Posición (X, Y, Z): ${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)}`;
         }
-        
+        // Esta función es el puente entre los sliders HTML y el código JS.
+        // Se llama cada vez que mueves un slider.
         const updateDisplay = (id, value) => {
             const parsedValue = parseFloat(value);
             const valueDisplay = document.getElementById(`${id}-value`); 
@@ -569,6 +597,7 @@
             
             valueDisplay.textContent = displayValue;
         };
+        //Inicialización de controles 
 // Sliders que nos permiten modificar las ganancias y se reflejan en la pantalla.
         function setupSliderListeners() {
             const sliders = ['kp', 'ki', 'kd', 'setpoint', 'throttle', 'simulated-angle']; 
@@ -576,6 +605,7 @@
                 const slider = document.getElementById(`${id}-slider`); 
                 if (!slider) return;
                 updateDisplay(id, slider.value);
+                //Cada vez que se mueve (input), llama a updateDisplay
                 slider.addEventListener('input', (e) => {
                     updateDisplay(id, e.target.value); 
                 });
