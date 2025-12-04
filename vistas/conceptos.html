@@ -38,7 +38,7 @@
                 <h2>El Error: e(t)</h2>
             </div>
             <p>
-                El **error** e(t) es la diferencia entre el valor deseado o punto de ajuste (Set Point, SP) y el valor medido actual (Process Variable, PV). 
+                El error e(t) es la diferencia entre el valor deseado o punto de ajuste (Set Point, SP) y el valor medido actual (Process Variable, PV). 
                 Es la señal de entrada al controlador PID y es crucial, ya que todas las acciones de control P, I, y D se basan en él. 
                 Se calcula simplemente como: e(t) = SP - PV.
             </p>
@@ -51,9 +51,9 @@
                 <h2>Acción Proporcional: Kp</h2>
             </div>
             <p>
-                La **acción proporcional** produce una salida de control directamente proporcional al error actual. 
+                La acción proporcional produce una salida de control directamente proporcional al error actual. 
                 Si Kp es alto, la respuesta es rápida pero puede causar oscilaciones. 
-                Si Kp es bajo, la respuesta es lenta. El principal inconveniente es que rara vez elimina el error por completo, resultando en un "error en estado estacionario" u **Offset**.
+                Si Kp es bajo, la respuesta es lenta. El principal inconveniente es que rara vez elimina el error por completo, resultando en un "error en estado estacionario" u offset.
             </p>
     
         </div>
@@ -64,9 +64,9 @@
                 <h2>Acción Integral: Ki</h2>
             </div>
             <p>
-                La **acción integral** intenta eliminar el error en estado estacionario sumando el error a lo largo del tiempo (la "memoria" del sistema). 
+                La acción integral intenta eliminar el error en estado estacionario sumando el error a lo largo del tiempo (la "memoria" del sistema). 
                 Mientras haya un error, la salida integral aumentará, forzando al error a cero. 
-                Sin embargo, un Ki demasiado grande puede llevar a un fenómeno llamado **windup** (saturación) y a una respuesta lenta e inestable.
+                Sin embargo, un Ki demasiado grande puede llevar a un fenómeno llamado windup (saturación) y a una respuesta lenta e inestable.
             </p>
           
         </div>
@@ -77,7 +77,7 @@
                 <h2>Acción Derivativa: Kd</h2>
             </div>
             <p>
-                La **acción derivativa** reacciona a la *tasa de cambio* del error, prediciendo el comportamiento futuro del error. 
+                La acción derivativa reacciona a la tasa de cambio del error, prediciendo el comportamiento futuro del error. 
                 Ayuda a amortiguar el sistema y reducir el sobreimpulso (overshoot). 
                 Es muy sensible al ruido, por lo que un Kd alto puede introducir mucha inestabilidad. Generalmente, se utiliza para mejorar la estabilidad y velocidad.
             </p>
