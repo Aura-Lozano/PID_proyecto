@@ -36,7 +36,7 @@
         <div class="step-card">
             <h2>Define tu microcontroladora</h2>
             <p>
-                Esto es muy importante porque influirá en la **capacidad de respuesta** de tu PID lo cual sabemos que en este tipo de situaciones es crítico.
+                Esto es muy importante porque influirá en la capacidad de respuesta de tu PID lo cual sabemos que en este tipo de situaciones es crítico.
                 Si seleccionas una microcontroladora lenta es probable que el control PID diverja o converja lentamente debido a la acumulación creciente del error.
             </p>
             <img src="../imagenes/MCU.png" class="IMGHTB" alt="Diagrama de una microcontroladora (MCU)">
@@ -45,7 +45,7 @@
         <div class="step-card">
             <h2>Define tus ESC's y motores</h2>
             <p>
-                En este paso debes verificar que tu **ESC** esté calificada para funcionar a la corriente que jala el motor, además se debe revisar
+                En este paso debes verificar que tu ESC esté calificada para funcionar a la corriente que jala el motor, además se debe revisar
                 el datasheet de los motores con diferentes propelas y baterías con distinto voltaje para tener una noción de que combinación es adecuada y
                 no me daña ni la ESC ni el motor.
             </p>
@@ -55,7 +55,7 @@
         <div class="step-card">
             <h2>Define tu banco de pruebas</h2>
             <p>
-                Hay diferentes tipos de **bancos de prueba** para validar tu PID, algunos funcionan como un balancín mientras que otros son del estilo de ejes.
+                Hay diferentes tipos de bancos de prueba para validar tu PID, algunos funcionan como un balancín mientras que otros son del estilo de ejes.
                 Adicionalmente hay algunos que validan todos los modos de rotación del dron mientras que otros no. Esto también depende del tipo de PID que
                 se plantea implementar y la aplicación, no es lo mismo un motor y una pesa que utilizando dos motores a la vez.
             </p>
@@ -65,7 +65,7 @@
         <div class="step-card">
             <h2>Conexiones y cableado</h2>
             <p>
-                Esta parte es mejor observarla con un esquema. Pero la idea general es conectar la señal de la **ESC** a la **microcontroladora** y los sensores (como un giroscopio) a la **MCU** para la lectura del error.
+                Esta parte es mejor observarla con un esquema. Pero la idea general es conectar la señal de la ESC a la microcontroladora y los sensores (como un giroscopio) a la MCU para la lectura del error.
             </p>
             <img src="../imagenes/EsqPID.png" class="IMGHTB" alt="Esquema de conexiones de un controlador PID">
         </div>
