@@ -1,10 +1,12 @@
-<html>
+<!DOCTYPE html>
+<html lang="es">
 <head>
-    <title>Proyecto de programación</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conceptos Fundamentales del Control PID</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../estilos/estilos.css">
-</head>
-<body>
-<div class="portada">
+    <div class="portada">
     <input type="checkbox" id="menu-toggle" hidden>
 
     <label for="menu-toggle" class="menu-btn">☰</label>
@@ -18,71 +20,75 @@
             
         </ul>
     </nav>
-
 </div>
-</body>
-<body class="cptos">
-    <div class="t1">
-        <h1>
-            ¿Que deberías saber antes de iniciar?
+</head>
+<body>
+
+<div class="PID-Concepts">
+    <div class="header-container">
+        <h1 class="concept-title" id="conceptos">
+            Conceptos Fundamentales del Control PID
         </h1>
     </div>
-    <div class="textos">
-        <div class="texto1">
-             <h2>
-            Proportional, integrative and derivative
-            </h2>
-        </div>
-        <div class="texto2">
-            <h3>
-            ¿En que consiste?
-            </h3>
-        </div>
-        <div class="texto3"><h3>
-            El PID consiste de varias partes, el setpoint, el error, el integral, el derivativo, el proporcional
-            y las ganancias, y todas esas partes contribuyen al funcionamiento del control PID a través de loops de
-            retroalimentación propios del sistema.
-        </h3>
-        </div>
-        <div class="texto4"><h3>
-            El <b>error</b> es la diferencia que hay entre el estado real del sistema y el setpoint al que queremos que llegue.
-        </h3>
-        </div>
-        </div>
-        <div class="texto5"><h3>
-            El <b>setpoint</b> es el punto al que queremos que nuestro sistema llegue, en el caso de la estabilización del dron
-            es deseable que setpoint sea un angulo de 0°
-        </h3>
-        </div>
-        <div class="texto6"><h3>
-            las <b>ganancias</b> son diferentes valores o constantes que ayudan a estabilizar nuestro sistema, de acuerdo al funcionamiento de
-            cada parte del PID a veces es sensato tener valores pequeños o grandes de acuerdo a las caracteristicas del sistema y el tipo de respuesta que 
-            deseamos
-        </h3>
 
+    <div class="concepts-grid">
+
+        <div class="concept-card" id="error">
+            <div class="icon-section">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>El Error: e(t)</h2>
+            </div>
+            <p>
+                El **error** e(t) es la diferencia entre el valor deseado o punto de ajuste (Set Point, SP) y el valor medido actual (Process Variable, PV). 
+                Es la señal de entrada al controlador PID y es crucial, ya que todas las acciones de control P, I, y D se basan en él. 
+                Se calcula simplemente como: e(t) = SP - PV.
+            </p>
+         
         </div>
-         <div class="t2">
-        <h2>
-            ¿Como entender tus gráficas de PID?
-        </h2>
-        <img src="../imagenes/Pidgra.png" class="PIDMG">
+
+        <div class="concept-card" id="proporcional">
+            <div class="icon-section">
+                <i class="fas fa-arrows-alt-h"></i>
+                <h2>Acción Proporcional: Kp</h2>
+            </div>
+            <p>
+                La **acción proporcional** produce una salida de control directamente proporcional al error actual. 
+                Si Kp es alto, la respuesta es rápida pero puede causar oscilaciones. 
+                Si Kp es bajo, la respuesta es lenta. El principal inconveniente es que rara vez elimina el error por completo, resultando en un "error en estado estacionario" u **Offset**.
+            </p>
+    
+        </div>
+
+        <div class="concept-card" id="integral">
+            <div class="icon-section">
+                <i class="fas fa-infinity"></i>
+                <h2>Acción Integral: Ki</h2>
+            </div>
+            <p>
+                La **acción integral** intenta eliminar el error en estado estacionario sumando el error a lo largo del tiempo (la "memoria" del sistema). 
+                Mientras haya un error, la salida integral aumentará, forzando al error a cero. 
+                Sin embargo, un Ki demasiado grande puede llevar a un fenómeno llamado **windup** (saturación) y a una respuesta lenta e inestable.
+            </p>
+          
+        </div>
+
+        <div class="concept-card" id="derivativa">
+            <div class="icon-section">
+                <i class="fas fa-chart-line"></i>
+                <h2>Acción Derivativa: Kd</h2>
+            </div>
+            <p>
+                La **acción derivativa** reacciona a la *tasa de cambio* del error, prediciendo el comportamiento futuro del error. 
+                Ayuda a amortiguar el sistema y reducir el sobreimpulso (overshoot). 
+                Es muy sensible al ruido, por lo que un Kd alto puede introducir mucha inestabilidad. Generalmente, se utiliza para mejorar la estabilidad y velocidad.
+            </p>
+        
+        </div>
+
     </div>
-    <div class="bont">
-        <div class="bonta">
-                Este es el comportamiento general de una gráfica de PID, al iniciar se encuentra con un error 
-                grande el cual corrige de más lo que vuelve a generar un error y repite el proceso hasta que
-                converga a un valor cercano al setpoint
-        </div>
-        <div class="bonta">
-            En algunos sistemas PID la oscilación casi no se llega a notar porque el error se corrige de manera muy
-            inmediata y se nota más como una especie de "colina" la cual converge a un valor rápidamente. En otros sistemas
-            considerando las ganacias es posible que el sistema diverga y jamás se corrija el error
-        </div>
-        <div class="bonta">
-            Al pasar el tiempo la gráfica converge a un valor pero sigue oscilando en menor medida, es decir nunca es
-            exacto, siempre va a haber un residuo o error en el PID. 
-        </div>
-    </div>
-    </div>
+    
+
+</div>
+
 </body>
 </html>

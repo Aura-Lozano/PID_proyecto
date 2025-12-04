@@ -1,10 +1,14 @@
-<html>
+<!DOCTYPE html>
+<html lang="es">
 <head>
-
-    <title>Proyecto de programación</title>
-    <link rel="stylesheet" href="../estilos/estilos.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Cómo construir tu PID? | Proyecto de programación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+     <link rel="stylesheet" href="../estilos/estilos.css">
 </head>
 <body>
+
 <div class="portada">
     <input type="checkbox" id="menu-toggle" hidden>
 
@@ -20,78 +24,66 @@
         </ul>
     </nav>
 </div>
-</body>
-<body class="HOWTO">
-    <div class="cuadrados1">
-        <div class="cuadrado">
-            <h2>
-                Define tu microcontroladora
-            </h2>
-        </div>
 
-        <div class="cuadrado">
-             <h2>
-                Define tus esc's y motores
-            </h2>
-        </div>
-        <div class="cuadrado">
-             <h2>
-                Define tu banco de pruebas
-            </h2>
-        </div>
-        <div class="cuadrado">
-             <h2>
-                Conexiones y cableado
-            </h2>
-        </div>
-        <div class="cuadrado">
-             <h2>
-                Codifica y túnea tu PID
-            </h2>
-        </div>
+<div class="HOWTO">
+    <div class="construirPID">
+        <h1 class="PID" id="pasos">
+            ¿Cómo construir tu PID?
+        </h1>
     </div>
-    <div class="cuadrados2">
-        <div class="cuadrado2">
-            <h3>
-                Esto es muy importante porque influirá en la capacidad de respuesta de tu PID lo cual sabemos que en este tipo de situaciones es crítico.
-                Si seleccionas una microcontroladora lenta es probable que el control PID diverga o converga lentamente debido a la acumulación creciente del error.
-            
-            </h3>
-            <img src="../imagenes/MCU.png" class="IMGHTB">
+
+    <div class="steps-grid">
+
+        <div class="step-card">
+            <h2>Define tu microcontroladora</h2>
+            <p>
+                Esto es muy importante porque influirá en la **capacidad de respuesta** de tu PID lo cual sabemos que en este tipo de situaciones es crítico.
+                Si seleccionas una microcontroladora lenta es probable que el control PID diverja o converja lentamente debido a la acumulación creciente del error.
+            </p>
+            <img src="../imagenes/MCU.png" class="IMGHTB" alt="Diagrama de una microcontroladora (MCU)">
         </div>
 
-        <div class="cuadrado2">
-             <h3>
-                En este paso debes verificar que tu esc esté calificada para funcionar a la corriente que jala el motor, además se debe revisar
+        <div class="step-card">
+            <h2>Define tus ESC's y motores</h2>
+            <p>
+                En este paso debes verificar que tu **ESC** esté calificada para funcionar a la corriente que jala el motor, además se debe revisar
                 el datasheet de los motores con diferentes propelas y baterías con distinto voltaje para tener una noción de que combinación es adecuada y
-                no me daña ni la esc ni el motor.
-            </h3>
-            <img src="../imagenes/MOTOP.webp" class="IMGHTB">
+                no me daña ni la ESC ni el motor.
+            </p>
+            <img src="../imagenes/MOTOP.webp" class="IMGHTB" alt="Motor y propela de un dron">
         </div>
-        <div class="cuadrado2">
-             <h3>
-                Hay diferentes tipos de bancos de prueba para validar tu PID, algunos funcionan como un balancín mientras que otros son del estilo de ejes.
+
+        <div class="step-card">
+            <h2>Define tu banco de pruebas</h2>
+            <p>
+                Hay diferentes tipos de **bancos de prueba** para validar tu PID, algunos funcionan como un balancín mientras que otros son del estilo de ejes.
                 Adicionalmente hay algunos que validan todos los modos de rotación del dron mientras que otros no. Esto también depende del tipo de PID que
                 se plantea implementar y la aplicación, no es lo mismo un motor y una pesa que utilizando dos motores a la vez.
-            </h3>
-            <img src="../imagenes/subibaja.png" class="IMGHTB">
+            </p>
+            <img src="../imagenes/subibaja.png" class="IMGHTB" alt="Banco de pruebas tipo balancín para control PID">
         </div>
-        <div class="cuadrado2">
-             <h3>
-                Esta parte es mejor observarla con un esquema. Pero la idea general es conectar la señal de la ESC a la microcontroladora.
-            </h3>
-            <img src="../imagenes/EsqPID.png" class="IMGHTB">
+
+        <div class="step-card">
+            <h2>Conexiones y cableado</h2>
+            <p>
+                Esta parte es mejor observarla con un esquema. Pero la idea general es conectar la señal de la **ESC** a la **microcontroladora** y los sensores (como un giroscopio) a la **MCU** para la lectura del error.
+            </p>
+            <img src="../imagenes/EsqPID.png" class="IMGHTB" alt="Esquema de conexiones de un controlador PID">
         </div>
-        <div class="cuadrado2">
-             <h3>
+
+        <div class="step-card">
+            <h2>Codifica y túnea tu PID</h2>
+            <p>
                 Esta parte también es muy relevante pues de esto depende la precisión de tu PID y las posteriores ganancias que funcionan mejor para el caso dado.
-                el entorno de desarrollo también depende en gran medida de la microcontroladora.
-            </h3>
-            <img src="../imagenes/CODE.jpg" class="IMGHTB">
+                El entorno de desarrollo también depende en gran medida de la microcontroladora. La codificación correcta es clave.
+            </p>
+            <img src="../imagenes/CODE.jpg" class="IMGHTB" alt="Código en una pantalla de desarrollo">
         </div>
     </div>
-    <div class="construirPID">
-    <h1 class="PID">
-        ¿Cómo construir tu PID?
-    </h1>   
+</div>
+
+<div class="construirPID">
+    </div>
+
+</body>
 </html>
