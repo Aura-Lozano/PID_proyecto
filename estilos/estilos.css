@@ -26,6 +26,8 @@ body {
     
 }
 
+
+/*KEYFRAMES ES PARA AÑADIR ANIMACIÓN AL ENTRAR A LA PÁGINA COM UN 1 SEGUNDO DE SUAVIZADO*/
 .HOWTO {
     display: flex;
     flex-direction: column;
@@ -64,7 +66,7 @@ body {
     left: 0;
     z-index: 1000;
 }
-
+/*LOS CAMBIOS DEL FORMATO SE APLICAN SEGÚN LA TRANSICIÓN*/
 .menu-btn {
     position: fixed;
     top: 20px;
@@ -96,18 +98,23 @@ body {
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.7);
     transition: left 0.3s ease-in-out;
     z-index: 999;
+
+/*CUANDO EL INPUT ESTÁ MARCADO MUEVE LA SIDEBAR A LA POSICIÓN VISIBLE*/
+
 }
 
 #menu-toggle:checked + .menu-btn + .sidebar {
     left: 0; 
 }
 
+/*ELIMINA VIÑETAS DEL UL*/
+
 .sidebar ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
-
+/*HEEEEEEEEY, esto CAMBIA EL ENLACE DEL TEXTO AL BLOQUEENTERO*/
 .sidebar li a {
     display: block;
     padding: 15px 20px;
@@ -116,14 +123,14 @@ body {
     border-left: 3px solid transparent;
     transition: all 0.2s ease;
 }
-
+/*AQUÍ AL PONER EL MOUSE SOBRE LA SIDEBAR EL TEXTO CAMBIA A VERDE Y EL BG TAMBIÉN*/
 .sidebar li a:hover {
     color: var(--color-green-accent);
     background-color: var(--color-navy);
     border-left: 3px solid var(--color-green-accent);
 }
 
-
+/*Se crea una grillapara un desarrollo más comodo con sus respectivos hijos*/
 .steps-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -132,6 +139,7 @@ body {
     margin: 0 auto;
 }
 
+/*los hijos del step-card*/
 
 .step-card {
     background: var(--color-navy);
@@ -145,12 +153,13 @@ body {
     min-height: 520px; 
 }
 
+/*la tarjeta se levanta hacia arriba*/
 .step-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 15px rgba(100, 255, 218, 0.5); 
     border-top: 5px solid var(--color-green-accent);
 }
-
+/*configuraciónnde tlitulo h2 en cada tarjeta*/
 
 .step-card h2 {
     color: var(--color-green-accent);
@@ -163,7 +172,7 @@ body {
     text-align: center;
     flex-shrink: 0; 
 }
-
+/*configuración de cada parrrafo en la tarjeta*/
 
 .step-card p {
     color: var(--color-slate);
@@ -174,7 +183,7 @@ body {
     margin-bottom: 25px;
 }
 
-
+/*Para que la imagen mantenga proporciaion, no se pueda encoger y el brillo se reduzca un poco*/
 .IMGHTB {
     
     width: 100%;
@@ -188,7 +197,7 @@ body {
     transition: filter 0.3s ease;
     flex-shrink:0;
 }
-
+/*clase del GIF, ajjk, ocupa toda la pantalla*/
 .gif {
      
     width: 100%;
@@ -213,7 +222,7 @@ body {
     transition: filter 0.3s ease;
     flex-shrink: 0; 
 }
-
+/*se hace un hover a las imagenes y las aclara*/
 .step-card:hover .IMGHTB {
     filter: brightness(1);
 }
@@ -225,8 +234,10 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 80px 20px;
+    /*ejecuta la animación de más abajo*/
     animation: fadeIn 1s ease-out;
 }
+/*Es una animación que empieza invisble y luego se vuelve visible*/
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -236,7 +247,7 @@ body {
     width: 100%;
     max-width: 1300px;
 }
-
+/*se define el titulo de la vista conceptos*/
 .concept-title {
     font-size: 3rem;
     font-weight: 800;
@@ -246,20 +257,22 @@ body {
     color: var(--color-dark-blue);
     background-color: var(--color-green-accent);
     border-radius: 12px;
+    /*se define la sombra del titulo para que sea bonitooo*/
     box-shadow: 0 6px 30px rgba(100, 255, 218, 0.7);
     width: fit-content;
-    font-size: clamp(2rem, 5vw, 3rem);
+    
 }
 
 .concepts-grid {
     display: grid;
+    /* se crean columnas que se repiten de acuerdo al espacio disponible con un mininmo de 400pixeles*/
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
     max-width: 1300px;
     margin: 0 auto 50px;
 }
 
-
+/*se crean los hijos de la grillaaaa*/
 .concept-card {
     background: var(--color-navy);
     border-radius: 12px;
@@ -270,7 +283,7 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-left: 4px solid var(--color-slate);
 }
-
+/*se le presenta el hover a los hijos*/
 .concept-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.9), 0 0 10px rgba(100, 255, 218, 0.5); 
@@ -288,21 +301,21 @@ body {
     font-size: 1.8rem;
     margin-right: 15px;
 }
-
+/*se define el estilo del h2 de los hijos*/
 .concept-card h2 {
     color: var(--color-light-slate);
     font-size: 1.4rem;
     font-weight: 700;
     margin: 0;
 }
-
+/*se define el estilo de los parrafos de los hijos*/
 .concept-card p {
     color: var(--color-slate);
     font-size: 1rem;
     line-height: 1.7;
     margin-bottom: 20px;
 }
-
+/*se definen más colorcitos*/
 :root {
             
             --color-primary: #1e3a2e; 
@@ -317,7 +330,7 @@ body {
         }
 
      
-        
+        /*Canvas para usar con JAVASCRIPT*/
         canvas { display: block; }
         #overlay {
             position: absolute;
@@ -325,11 +338,12 @@ body {
             left: 0;
             width: 100%;
             height: 100%;
+            /*implica que no interactúa con el maous*/
             pointer-events: none; 
             z-index: 10; 
         }
         
-        
+        /*aquí se define el bg con una imagen de fondo FIJA y menor brillo para mejor lectura del hug*/
         #scene-background {
             position: fixed;
             top: 0;
@@ -342,7 +356,7 @@ body {
             filter: brightness(0.7); 
         }
         
-       
+       /*este panel puede recibir clicks*/
         .panel {
             pointer-events: all; 
             position: absolute;
@@ -350,17 +364,19 @@ body {
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+            /*aquí se define que lo que está detrás del panel se difumina*/
             backdrop-filter: blur(5px);
             border: 1px solid var(--color-border);
             z-index: 100;
         }
 
-    
+            /*para posicionar el panel en la página*/
         #controls-panel {
             top: 20px;
             right: 20px; 
             width: 350px;
         }
+            /*para definir el estilo de los h2 del panel */
         #controls-panel h2 {
             color: var(--color-accent);
             border-bottom: 2px solid var(--color-secondary);
@@ -368,39 +384,113 @@ body {
             margin-top: 0;
             font-weight: 600;
         }
-        .control-group { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed var(--color-border); }
-        .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-light); }
-        input[type=range] { width: 100%; margin-top: 5px; height: 6px; cursor: pointer; -webkit-appearance: none; background: #3b5a45; border-radius: 5px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--color-secondary); box-shadow: 0 0 5px rgba(248, 113, 113, 0.7); border: 2px solid var(--color-text-light); }
-        .value-display { font-weight: bold; color: var(--color-highlight-green); float: right; }
+
+        .control-group { 
+            margin-bottom: 15px; 
+            padding-bottom: 10px; 
+            border-bottom: 1px dashed var(--color-border); 
+        }
+            /*Esto junto al control-gruop me permite seperar visualmente cada sección*/
+        .control-group:last-child { 
+            border-bottom: none; 
+            margin-bottom: 0; 
+            padding-bottom: 0; 
+        }
+            /*se definen estilos del label para que ocupe toda la linea y sperarlo del slider*/
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 500; 
+            color: var(--color-text-light); 
+        }
+            /*Aquí se define el estilo del slider*/
+        input[type=range] {
+             width: 100%; 
+             margin-top: 5px; 
+             height: 6px; 
+             cursor: pointer; 
+             /*El webkit me permite personalizar cuando está en none*/
+             -webkit-appearance: none; 
+             background: #3b5a45; 
+             border-radius: 5px; }
+
+            /*Aquí se personaliza el estilo de la bola que se mueve en el slider*/
+        input[type=range]::-webkit-slider-thumb 
+        { 
+            -webkit-appearance: none; 
+            height: 18px; 
+            width: 18px; 
+            border-radius: 50%; 
+            background: var(--color-secondary); 
+            box-shadow: 0 0 5px rgba(248, 113, 113, 0.7); 
+            border: 2px solid var(--color-text-light); }
+            
+            /*Esto es para mostrar el valor del slider*/
+        .value-display { 
+            font-weight: bold;
+            color: var(--color-highlight-green);
+            /*se alinea a la derecha*/
+            float: right;
+        }
         .pid-info-group p { margin: 5px 0; }
 
-    
+            /*definimos la posición del gráfico con este char t container*/
+
         #pid-chart-container {
             top: 20px; 
             left: 20px;
             width: 450px;
             height: 400px; 
         }
+        /*estilo del h3 en el padre del chart*/
         #pid-chart-container h3 {
             color: var(--color-text-light);
             margin-top: 0;
         }
         
-        
-        .chart-actions { display: flex; justify-content: space-between; margin-top: 10px; } 
+        /* estilo de los botones del gráfico*/
+        .chart-actions { 
+            display: flex;
+             justify-content: space-between;
+              margin-top: 10px;
+             } 
+            /*estilo más claro de los botones del gráfico*/ 
         .chart-actions button {
-            background-color: var(--color-secondary); color: white; border: none; padding: 10px 18px; cursor: pointer; border-radius: 6px; font-weight: bold; flex-grow: 1; margin: 0 5px; transition: background-color 0.2s, transform 0.1s;
+            background-color: var(--color-secondary);
+             color: white; 
+             border: none; 
+             padding: 10px 18px; 
+             cursor: pointer; 
+             border-radius: 6px; 
+             font-weight: bold; 
+             /*todos los botones se expanden para ocupar el mismo ancho*/
+             flex-grow: 1; 
+             margin: 0 5px; 
+             transition: background-color 0.2s; 
+             transform: 0.1s;
         }
-        .chart-actions button:hover { background-color: #e34c3e; transform: translateY(-1px); }
-        .chart-actions button:not(.active) { background-color: #3b5a45; } 
-        
-      
-        #pid-chart { background-color: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 8px; }
+            /*para que el botón haga hover al pasar el maouse sobre él*/
+        .chart-actions button:hover { 
+            background-color: #e34c3e; 
+            transform: translateY(-1px); 
+        }
+            /*los botones que no tengan la clase active puesta se tornan de un color más apagado para decir que efectivamente, se apagaron*/
 
+        .chart-actions button:not(.active) {
+             background-color: #3b5a45; 
+            } 
+        
+            /* fondo del gráficcco*/
+        #pid-chart { 
+            background-color: rgba(0, 0, 0, 0.4); 
+            padding: 10px; 
+            border-radius: 8px; 
+        }
+
+            /*se le da el estilo a la ventana emergente con el analisis de datos*/
         
         #analysis-results {
+            /*no se le puede hacer click*/
             pointer-events: none; 
             position: absolute;
             top: 50%; 
@@ -417,17 +507,30 @@ body {
             transition: opacity 0.5s ease;
             border: 2px solid var(--color-accent);
         }
+        /* cuando java le agrega la clase visible se vuelve visible con fade in y ya se puede hacer click*/   
         #analysis-results.visible { opacity: 1; pointer-events: all; }
+        /* se define el estilo del h3 de la ventana emergente*/
         #analysis-results h3 {
             color: var(--color-accent); 
             margin-top: 0;
             border-bottom: 2px solid var(--color-accent);
             padding-bottom: 5px;
         }
-        .result-value { color: var(--color-highlight-green); font-weight: bold; float: right; }
-        .result-note { font-size: 0.8em; color: #aaa; margin-top: 15px; text-align: center; }
+        /*Estos son los estilos de los valores resaltados o importantes que quiero que aparezcan en la ventana emergente*/
+        .result-value { 
+            color: var(--color-highlight-green); 
+            font-weight: bold; 
+            float: right; 
+        }
+        /*texto pequeño en la ventana*/
+        .result-note { 
+            font-size: 
+            0.8em; color: #aaa; 
+            margin-top: 15px; 
+            text-align: center; 
+        }
         
-        
+        /*mensaje emergente tipo aviso*/
         #pid-mode-alert {
             pointer-events: all;
             position: absolute;
