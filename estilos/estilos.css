@@ -19,7 +19,12 @@ body {
     margin: 0;
     padding: 0;
 }
-
+.main-title { 
+    font-weight: 800;
+    text-align: center; /* ESTO CENTRA EL TEXTO DENTRO DEL BLOQUE */
+    padding: 15px 35px;
+    
+}
 
 .HOWTO {
     display: flex;
@@ -178,6 +183,29 @@ body {
        Asegúrate de que el padre tenga una altura definida (por ejemplo, min-height: 100vh;). */
 
     /* 2. Eliminación de restricciones de tamaño */
+    max-height: 200px; /* Elimina el límite de 200px */
+    max-width: 100%;  
+    
+    /* 3. Ajuste para cubrir sin dejar espacios */
+    object-fit: contain; /* Cambia de 'contain' a 'cover' para que la imagen cubra todo el área, recortando si es necesario */
+
+
+    /* Propiedades de estilo mantenidas o ajustadas */
+    border:none; /* Elimina el borde */
+    background-color: var(--color-dark-blue);
+    filter: brightness(0.95);
+    transition: filter 0.3s ease;
+    flex-shrink:0;
+}
+
+.gif {
+     /* 1. Dimensiones para ocupar todo el espacio del contenedor */
+    width: 100%;
+    height: 100vh; /* Usa 100vh para que ocupe el 100% de la altura de la ventana (Viewport Height) */
+    /* Si quieres que ocupe el 100% del contenedor padre (no de la ventana), usa height: 100%; 
+       Asegúrate de que el padre tenga una altura definida (por ejemplo, min-height: 100vh;). */
+
+    /* 2. Eliminación de restricciones de tamaño */
     max-height: none; /* Elimina el límite de 200px */
     max-width: 100%;  
     
@@ -196,8 +224,9 @@ body {
     transition: filter 0.3s ease;
     flex-shrink: 0; 
 }
+
 .step-card:hover .IMGHTB {
-    filter: brightness(1.1);
+    filter: brightness(1);
 }
 
 
@@ -215,24 +244,6 @@ body {
         margin-bottom: 40px;
         font-size: 2rem;
     }
-}
-
-:root {
-    --color-dark-blue: #0A192F;          
-    --color-navy: #112240;               
-    --color-green-accent: #64FFDA;       
-    --color-light-slate: #CCD6F6;        
-    --color-slate: #8892B0;              
-    --font-inter: 'Inter', sans-serif;
-}
-
-body {
-    font-family: var(--font-inter);
-    color: var(--color-light-slate);
-    background-color: var(--color-dark-blue);
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
 }
 
 .PID-Concepts {
@@ -319,22 +330,6 @@ body {
     margin-bottom: 20px;
 }
 
-@media (max-width: 768px) {
-    .PID-Concepts {
-        padding: 50px 15px;
-    }
-    .concept-title {
-        margin-bottom: 40px;
-        font-size: 2rem;
-    }
-    .concepts-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    .formula-subtitle {
-        font-size: 1.5rem;
-    }
-}
 :root {
             /* Paleta de Colores Navideños/Invernales */
             --color-primary: #1e3a2e; 
@@ -348,13 +343,8 @@ body {
             --color-highlight-red: #f87171; 
         }
 
-        body { 
-            margin: 0; 
-            overflow: hidden; 
-            background-color: var(--color-background); 
-            color: var(--color-text-light); 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        }
+     
+        
         canvas { display: block; }
         #overlay {
             position: absolute;

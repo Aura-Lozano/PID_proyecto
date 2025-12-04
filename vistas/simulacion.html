@@ -1,0 +1,698 @@
+<html>
+<head>
+    <title>Proyecto de programación</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../estilos/estilos.css">
+</head>
+
+<div class="portada">
+    <input type="checkbox" id="menu-toggle" hidden>
+
+    <label for="menu-toggle" class="menu-btn">☰</label>
+    <nav class="sidebar" onclick="document.getElementById('menu-toggle').checked = false;">
+        <ul>
+            <li><a href="../principal.html"><span class="icon"></span> Inicio</a></li>
+            <li><a href="conceptos.html"><span class="icon"></span> Conceptos</a></li>
+            <li><a href="simulacion.html"><span class="icon"></span> Simulación de PID</a></li>
+            <li><a href="pasosconstruccion.html"><span class="icon"></span> ¿Cómo construir tu PID?</a></li>
+            
+        </ul>
+    </nav>
+</div>
+
+<body>
+    <div id="scene-background"></div>
+    <div id="overlay">
+        
+        <div id="analysis-results">
+            </div>
+
+        <div id="pid-chart-container" class="panel">
+            <h3>Gráfico de control PID</h3>
+            <canvas id="pid-chart"></canvas>
+            
+            <div class="chart-actions">
+                <button id="toggle-chart-btn" class="active" onclick="toggleChartListener()">
+                    Empezar análisis
+                </button>
+                <button onclick="analyzeData(false)">
+                    Analizar datos
+                </button>
+            </div>
+            
+            <div id="chart-info">Gráfica activa</div>
+        </div>
+
+        <div id="controls-panel" class="panel">
+            <h2>Control PID</h2>
+            
+            <div class="pid-info-group control-group">
+                <p id="sim-status" style="font-weight: bold; color: var(--color-highlight-green);">Estado: ACTIVO</p>
+                <p id="position-display" style="font-weight: bold; color: var(--color-accent);">Posición (X, Y, Z): 0.00, 2.00, 0.00</p>
+                <p style="color: var(--color-highlight-green);">Setpoint (Ángulo Deseado): <span id="angle-display">0.00°</span></p>
+                <p style="color: var(--color-highlight-red);">Ángulo Real (Actual): <span id="angle-real-display">0.00°</span></p>
+                <p>Potencia (Throttle) Simulada: <span id="throttle-sim-display">50%</span></p>
+                <hr style="border-color: var(--color-border); margin: 8px 0;">
+            </div>
+
+            <div class="control-group">
+                <label for="kp-slider">
+                    Kp (Proporcional): <span id="kp-value" class="value-display">0.50</span>
+                </label>
+                <input type="range" id="kp-slider" min="0.00" max="10.00" step="0.01" value="0.50">
+            </div>
+            <div class="control-group">
+                <label for="ki-slider">
+                    Ki (Integral): <span id="ki-value" class="value-display">0.00050</span>
+                </label>
+                <input type="range" id="ki-slider" min="0" max="10" step="0.1" value="0.5"> 
+            </div>
+            <div class="control-group">
+                <label for="kd-slider">
+                    Kd (Derivativo): <span id="kd-value" class="value-display">0.10</span>
+                </label>
+                <input type="range" id="kd-slider" min="0.00" max="5.00" step="0.01" value="0.10">
+            </div>
+
+            <hr style="border-color: var(--color-border);">
+
+            <div class="control-group">
+                <label for="setpoint-slider">
+                    Setpoint (Ángulo Deseado): <span id="setpoint-value" class="value-display">0°</span>
+                </label>
+                <input type="range" id="setpoint-slider" min="-30" max="30" step="1" value="0">
+            </div>
+            <div class="control-group">
+                <label for="throttle-slider">
+                    Potencia (Throttle) Simulada: <span id="throttle-value" class="value-display">50%</span>
+                </label>
+                <input type="range" id="throttle-slider" min="0" max="100" step="1" value="50">
+            </div>
+            
+            <div class="control-group">
+                <label for="simulated-angle-slider">
+                    Ángulo Real (Solo Lectura/Perturbación): <span id="simulated-angle-value" class="value-display">0.00°</span>
+                </label>
+                <input type="range" id="simulated-angle-slider" min="-30" max="30" step="0.01" value="0" disabled> 
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        //LÓGICA PID
+        class PIDController {
+            constructor(Kp, Ki, Kd, minOutput, maxOutput) {
+                this.Kp = Kp;
+                this.Ki = Ki;
+                this.Kd = Kd;
+                this.minOutput = minOutput;
+                this.maxOutput = maxOutput;
+
+                this.lastError = 0;
+                this.integral = 0;
+            }
+
+            setGains(Kp, KiSlider, Kd) {
+                this.Kp = Kp;
+                this.Ki = KiSlider / 1000; 
+                this.Kd = Kd;
+                this.integral = 0; 
+            }
+
+            calculate(setpoint, measuredValue, deltaTime) {
+                if (deltaTime <= 0) return 0;
+
+                const error = setpoint - measuredValue;
+                
+                //Término Proporcional
+                const proportionalTerm = this.Kp * error;
+
+                //Término Integral 
+                if (Math.abs(error) < 10) {
+                    this.integral += error * deltaTime;
+                } else {
+                    this.integral = 0;
+                }
+                
+                //Anti-Windup
+                this.integral = Math.max(-20, Math.min(20, this.integral));
+                const integralTerm = this.Ki * this.integral;
+
+                //Término derivativo
+                const derivative = (error - this.lastError) / deltaTime;
+                const derivativeTerm = this.Kd * derivative;
+
+                let output = proportionalTerm + integralTerm + derivativeTerm;
+
+                //Restricción de salida
+                output = Math.max(this.minOutput, Math.min(this.maxOutput, output));
+
+                //Actualizar error
+                this.lastError = error;
+
+                return output;
+            }
+        }
+        
+        //Variables Globales 
+        let scene, camera, renderer;
+        let drone;
+        let keys = {}; 
+        let clock = new THREE.Clock();
+        const manualMoveSpeed = 10; 
+        const manualRotationSpeed = 0.02;
+        let desiredAngle = 0; 
+        let currentRealAngle = 0; 
+        let currentThrottle = 50; 
+        const targetHeight = 10; 
+        const minHeight = 2; 
+        
+        let pidController = new PIDController(0.5, 0.0005, 0.1, -400, 400); 
+        let pidModeActive = true; 
+        let isSimulationRunning = true; 
+        let animationFrameId = null;    
+
+        let pidChart;
+        let isChartActive = true; 
+        
+        //FUNCIÓN DE ANÁLISIS AVANZADO
+        window.analyzeData = function(isAuto = false) {
+            const chart = Chart.getChart("pid-chart"); 
+            const resultsPanel = document.getElementById('analysis-results');
+
+            if (!chart || !chart.data.datasets[0].data.length) {
+                if(!isAuto) alert("No hay suficientes datos aún.");
+                return;
+            }
+
+            const desiredData = chart.data.datasets[0].data; 
+            const realData = chart.data.datasets[1].data;    
+            const n = desiredData.length;
+            const finalSetpoint = desiredData[n - 1]; 
+            
+            //Cálculos de Error
+            let sumSquareError = 0;
+            let peakVal = -Infinity;
+            let minVal = Infinity;
+
+            for (let i = 0; i < n; i++) {
+                const error = desiredData[i] - realData[i];
+                sumSquareError += (error * error);
+                if (realData[i] > peakVal) peakVal = realData[i];
+                if (realData[i] < minVal) minVal = realData[i];
+            }
+
+            const rmse = Math.sqrt(sumSquareError / n); 
+
+            //Sobredisparo
+            let overshootInfo = "";
+            if (Math.abs(finalSetpoint) < 0.5) {
+                const maxDev = Math.max(Math.abs(peakVal), Math.abs(minVal));
+                overshootInfo = `${maxDev.toFixed(2)}° (Abs)`;
+            } else {
+                const overshootVal = (finalSetpoint > 0) ? (peakVal - finalSetpoint) : (Math.abs(minVal) - Math.abs(finalSetpoint));
+                const percent = Math.max(0, (overshootVal / Math.abs(finalSetpoint)) * 100);
+                overshootInfo = `${percent.toFixed(2)}%`;
+            }
+
+            //Error Estacionario
+            let steadyStateErrorSum = 0;
+            const samplesSteady = Math.floor(n * 0.2) || 1;
+            for(let i = n - samplesSteady; i < n; i++) {
+                steadyStateErrorSum += (desiredData[i] - realData[i]);
+            }
+            const steadyStateError = steadyStateErrorSum / samplesSteady;
+
+            //Estabilidad
+            const tolerance = 1.0; 
+            let stableSamples = 0;
+            for(let i = n - 1; i >= 0; i--) {
+                const diff = Math.abs(desiredData[i] - realData[i]);
+                if(diff > tolerance) break; 
+                stableSamples++;
+            }
+            const estimatedTimeStable = (stableSamples * 0.02).toFixed(2); 
+            
+            let stabilityText = "";
+            if (stableSamples === n) stabilityText = "Estable (Todo el tiempo)";
+            else if (stableSamples < 5) stabilityText = "<span style='color:red'>Inestable / No converge</span>";
+            else stabilityText = `Estable hace ${estimatedTimeStable}s`;
+
+            //Análisis de la gráfica
+            const htmlContent = `
+                <h3>📊 REPORTE DE INGENIERÍA PID</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <small style="color:#aaa">Estabilidad (RMSE)</small><br>
+                        <span class="result-value" style="float:none; font-size:1.2em">${rmse.toFixed(3)}°</span>
+                    </div>
+                    <div>
+                         <small style="color:#aaa">Sobredisparo</small><br>
+                         <span class="result-value" style="float:none; font-size:1.2em">${overshootInfo}</span>
+                    </div>
+                    <div>
+                        <small style="color:#aaa">Error Estacionario</small><br>
+                         <span class="result-value" style="float:none; color: ${Math.abs(steadyStateError)<0.5 ? '#34d399':'#f87171'}">
+                            ${steadyStateError.toFixed(3)}°
+                         </span>
+                    </div>
+                    <div>
+                        <small style="color:#aaa">Tiempo Convergencia</small><br>
+                        <span class="result-value" style="float:none; font-size:0.9em">${stabilityText}</span>
+                    </div>
+                </div>
+                <hr style="border-color: rgba(255, 255, 255, 0.1); margin: 10px 0;">
+                <p style="margin:5px 0; font-size:0.9em">Setpoint Final: <b>${finalSetpoint.toFixed(1)}°</b></p>
+                <div class="result-note">Click para cerrar análisis.</div>
+            `;
+
+            resultsPanel.innerHTML = htmlContent;
+            resultsPanel.classList.add('visible');
+            resultsPanel.style.pointerEvents = 'all';
+            
+            if(isAuto) {
+                console.log("ANÁLISIS DE EMERGENCIA MOSTRADO");
+            }
+            
+            resultsPanel.onclick = () => {
+                resultsPanel.classList.remove('visible');
+                resultsPanel.style.pointerEvents = 'none';
+            };
+        };
+
+
+        //FUNCIONES DE THREE.JS 
+        function init() {
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x87CEEB, 1, 300); 
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0); 
+            document.body.appendChild(renderer.domElement); 
+            
+            renderer.domElement.style.position = 'fixed';
+            renderer.domElement.style.top = '0';
+            renderer.domElement.style.left = '0';
+            renderer.domElement.style.zIndex = '1';
+
+            //Iluminación
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); 
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 3); 
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+            
+            //Suelo y Bosque
+            const groundGeometry = new THREE.PlaneGeometry(500, 500);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x404d30 }); 
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = 0;
+            scene.add(ground);
+            createForest(50); 
+            
+            drone = createDrone();
+            scene.add(drone);
+            drone.position.set(0, minHeight, 0); 
+            
+            updateCameraPosition(); 
+
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('keydown', onKeyDown, false);
+            document.addEventListener('keyup', onKeyUp, false);
+
+            setupSliderListeners(); 
+            initChart();
+            animate();
+            
+            showPIDAlert(true); 
+        }
+        
+        function createForest(count) {
+             const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 }); 
+            const foliageMaterial = new THREE.MeshLambertMaterial({ color: 0x006400 }); 
+
+            for (let i = 0; i < count; i++) {
+                const treeGroup = new THREE.Group();
+                
+                const height = 15 + Math.random() * 20;
+                const radius = 0.5 + Math.random() * 0.5;
+
+                const trunkGeometry = new THREE.CylinderGeometry(radius * 0.2, radius * 0.4, height * 0.7, 8);
+                const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                trunk.position.y = height * 0.7 / 2;
+                treeGroup.add(trunk);
+                
+                const foliageHeight = height * 0.5;
+                const foliageGeometry = new THREE.ConeGeometry(radius * 2, foliageHeight, 10);
+                const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+                foliage.position.y = height * 0.7 + foliageHeight / 3; 
+                treeGroup.add(foliage);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const spawnRadius = 80 + Math.random() * 100;
+                
+                treeGroup.position.x = Math.cos(angle) * spawnRadius;
+                treeGroup.position.z = Math.sin(angle) * spawnRadius;
+                
+                scene.add(treeGroup);
+            }
+        }
+
+
+        function animate() {
+            if (!isSimulationRunning) {
+                animationFrameId = null;
+                return; 
+            }
+            
+            animationFrameId = requestAnimationFrame(animate); 
+            
+            const deltaTime = clock.getDelta();
+            
+            updateDroneMovement(deltaTime); 
+            
+            if (pidChart && isChartActive) {
+                updateChart(desiredAngle, currentRealAngle);
+            }
+            
+            const propellerSpeed = 5 + (currentThrottle / 100) * 15; 
+            drone.traverse((object) => {
+                if (object.userData.isPropeller) {
+                    object.rotation.y += propellerSpeed * deltaTime; 
+                }
+            });
+            updateCameraPosition();
+            renderer.render(scene, camera);
+            updatePositionDisplay();
+        }
+       
+        function updateDroneMovement(deltaTime) {
+            if (!isSimulationRunning) return; 
+            let velocity = new THREE.Vector3();
+
+            //CONFIGURACIÓN VISUAL DINÁMICA (Efecto temblor si hay mucho error)
+            const errorMagnitude = Math.abs(desiredAngle - currentRealAngle);
+            const rotationSpeedSmoothness = errorMagnitude > 5 ? 0.6 : 0.1; 
+
+            //Control de Altura
+            const targetY = minHeight + (currentThrottle / 100) * (targetHeight - minHeight);
+            drone.position.y += (targetY - drone.position.y) * 0.05; 
+            if (drone.position.y < minHeight) drone.position.y = minHeight;
+
+            //Movimiento Manual
+            if (keys['W']) velocity.z -= manualMoveSpeed * deltaTime; 
+            if (keys['S']) velocity.z += manualMoveSpeed * deltaTime;
+            if (keys['A']) velocity.x -= manualMoveSpeed * deltaTime * 0.5; 
+            if (keys['D']) velocity.x += manualMoveSpeed * deltaTime * 0.5;
+
+            drone.translateX(velocity.x);
+            drone.translateZ(velocity.z);
+            
+            //Yaw
+            if (keys['Q']) { drone.rotation.y += manualRotationSpeed; }
+            if (keys['E']) { drone.rotation.y -= manualRotationSpeed; }
+            
+            let targetPitchRadians = 0;
+            let targetRollRadians = 0;
+
+            if (pidModeActive) {
+                //Cálculo PID
+                const pidOutput = pidController.calculate(desiredAngle, currentRealAngle, deltaTime);
+
+                //output -> cambio de ángulo
+                const angleChange = pidOutput * deltaTime;
+                currentRealAngle += angleChange;
+                
+                //Límites Visuales (Clamp) - Ampliado a 60 para ver la caída
+                currentRealAngle = Math.max(-60, Math.min(60, currentRealAngle));
+                
+                //AUTO-STOP DE EMERGENCIAw
+                // Si el ángulo pasa de 45 grados, parar todo.
+                if (Math.abs(currentRealAngle) > 45) {
+                    isSimulationRunning = false; 
+                    
+                    const statusDisplay = document.getElementById('sim-status');
+                    statusDisplay.innerHTML = 'Estado: <span style="color:red"> INESTABLE /span>';
+                    
+                    console.log("¡Divergencia! Parando simulación...");
+                    analyzeData(true);
+                    
+                    //Desactivar botón de la gráfica
+                    const btn = document.getElementById('toggle-chart-btn');
+                    if(btn) { btn.classList.remove('active'); btn.innerText = "Reanudar gráfica"; }
+                    isChartActive = false; 
+                    return; 
+                }
+
+                targetPitchRadians = currentRealAngle * (Math.PI / 180);
+
+                //Perturbaciones
+                if (keys['ARROWLEFT']) currentRealAngle += 80 * deltaTime; 
+                if (keys['ARROWRIGHT']) currentRealAngle -= 80 * deltaTime;
+
+            } else {
+                let manualAngle = 0;
+                if (keys['W']) manualAngle = 15;
+                if (keys['S']) manualAngle = -15;
+                
+                currentRealAngle += (manualAngle - currentRealAngle) * 0.1;
+                targetPitchRadians = currentRealAngle * (Math.PI / 180);
+            }
+
+            //Aplicar rotación visual 
+            drone.rotation.x += (targetPitchRadians - drone.rotation.x) * rotationSpeedSmoothness;
+            drone.rotation.z += (targetRollRadians - drone.rotation.z) * rotationSpeedSmoothness;
+
+            //Actualizar UI
+            const slider = document.getElementById('simulated-angle-slider');
+            if (slider) slider.value = currentRealAngle;
+            updateDisplay('simulated-angle', currentRealAngle);
+        }
+
+        function updateCameraPosition() {
+            if (!drone) return;
+            const cameraOffset = new THREE.Vector3(0, 5, 10); 
+            cameraOffset.applyQuaternion(drone.quaternion); 
+            const targetCameraPosition = drone.position.clone().add(cameraOffset);
+            camera.position.lerp(targetCameraPosition, 0.05); 
+            camera.lookAt(drone.position);
+        }
+
+        //MANEJO DE EVENTOS Y UI
+        function togglePIDMode() {
+            pidModeActive = !pidModeActive;
+            const statusDisplay = document.getElementById('sim-status');
+            const alertBox = document.getElementById('pid-mode-alert');
+            const angleSlider = document.getElementById('simulated-angle-slider');
+            
+            if (pidModeActive) {
+
+                statusDisplay.style.color = 'var(--color-highlight-green)';
+                showPIDAlert(true);
+                angleSlider.disabled = true; 
+            } else {
+                statusDisplay.style.color = 'var(--color-secondary)';
+                showPIDAlert(true);
+                angleSlider.disabled = false; 
+            }
+        }
+        
+        function showPIDAlert(visible) {
+            const alertBox = document.getElementById('pid-mode-alert');
+            alertBox.classList.toggle('visible', visible);
+            if (visible) {
+                setTimeout(() => { alertBox.classList.remove('visible'); }, 3000);
+            }
+        }
+
+        function onKeyDown(event) {
+            const key = event.key.toUpperCase();
+            keys[key] = true;
+            if (key === 'P') togglePIDMode();
+        }
+
+        function onKeyUp(event) {
+            keys[event.key.toUpperCase()] = false;
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function updatePositionDisplay() {
+            const pos = drone.position;
+            const display = document.getElementById('position-display');
+            if (display) display.textContent = `Posición (X, Y, Z): ${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)}`;
+        }
+        
+        const updateDisplay = (id, value) => {
+            const parsedValue = parseFloat(value);
+            const valueDisplay = document.getElementById(`${id}-value`); 
+            
+            if (!valueDisplay) return;
+
+            let displayValue;
+            
+            if (id === 'kp') {
+                pidController.setGains(parsedValue, parseFloat(document.getElementById('ki-slider').value), pidController.Kd);
+                displayValue = parsedValue.toFixed(2);
+            } else if (id === 'ki') {
+                pidController.setGains(pidController.Kp, parsedValue, pidController.Kd);
+                displayValue = (parsedValue / 1000).toFixed(5);
+            } else if (id === 'kd') {
+                pidController.setGains(pidController.Kp, parseFloat(document.getElementById('ki-slider').value), parsedValue);
+                displayValue = parsedValue.toFixed(2);
+            } else if (id === 'setpoint') {
+                displayValue = `${parsedValue.toFixed(0)}°`;
+                desiredAngle = parsedValue;
+                const display = document.getElementById('angle-display');
+                if (display) display.textContent = `${parsedValue.toFixed(2)}°`;
+            } else if (id === 'throttle') {
+                displayValue = `${parsedValue.toFixed(0)}%`;
+                currentThrottle = parsedValue;
+                const display = document.getElementById('throttle-sim-display');
+                if (display) display.textContent = `${parsedValue.toFixed(0)}%`;
+            } else if (id === 'simulated-angle') {
+                displayValue = `${parsedValue.toFixed(2)}°`; 
+                const display = document.getElementById('angle-real-display');
+                if (display) display.textContent = `${parsedValue.toFixed(2)}°`;
+            } else {
+                displayValue = parsedValue.toFixed(2);
+            }
+            
+            valueDisplay.textContent = displayValue;
+        };
+
+        function setupSliderListeners() {
+            const sliders = ['kp', 'ki', 'kd', 'setpoint', 'throttle', 'simulated-angle']; 
+            sliders.forEach(id => {
+                const slider = document.getElementById(`${id}-slider`); 
+                if (!slider) return;
+                updateDisplay(id, slider.value);
+                slider.addEventListener('input', (e) => {
+                    updateDisplay(id, e.target.value); 
+                });
+            });
+            pidController.setGains(
+                parseFloat(document.getElementById('kp-slider').value), 
+                parseFloat(document.getElementById('ki-slider').value), 
+                parseFloat(document.getElementById('kd-slider').value)
+            );
+        }
+
+        function createDrone() {
+            const droneGroup = new THREE.Group();
+            const bodyGeometry = new THREE.BoxGeometry(2, 0.5, 2);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xcc00cc }); // Color magenta
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            droneGroup.add(body);
+            
+            const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 5);
+            const armMaterial = new THREE.MeshLambertMaterial({ color: 0xeeeeee });
+            
+            const arm1 = new THREE.Mesh(armGeometry, armMaterial);
+            arm1.rotation.z = Math.PI / 2;
+            arm1.rotation.y = Math.PI / 4;
+            droneGroup.add(arm1);
+            
+            const arm2 = new THREE.Mesh(armGeometry, armMaterial);
+            arm2.rotation.z = Math.PI / 2;
+            arm2.rotation.y = -Math.PI / 4;
+            droneGroup.add(arm2);
+
+            const propGeom = new THREE.BoxGeometry(0.2, 0.05, 1.5);
+            const propMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
+            
+            const positions = [
+                {x: 1.7, z: 1.7}, {x: -1.7, z: -1.7},
+                {x: 1.7, z: -1.7}, {x: -1.7, z: 1.7}
+            ];
+            
+            positions.forEach(pos => {
+                const prop = new THREE.Mesh(propGeom, propMat);
+                prop.position.set(pos.x, 0.3, pos.z);
+                prop.userData = { isPropeller: true };
+                droneGroup.add(prop);
+                
+                const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.3), new THREE.MeshLambertMaterial({color: 0x888888}));
+                motor.position.set(pos.x, 0.15, pos.z);
+                droneGroup.add(motor);
+            });
+
+            return droneGroup;
+        }
+
+        // Gráficas 
+        function initChart() {
+            const ctx = document.getElementById('pid-chart').getContext('2d');
+            const initialLabels = Array.from({length: 50}, (_, i) => i);
+            const initialData = Array(50).fill(null);
+            
+            pidChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: initialLabels,
+                    datasets: [
+                        { label: 'Setpoint (Deseado)', data: [...initialData], borderColor: '#34d399', borderWidth: 2, pointRadius: 0, tension: 0 },
+                        { label: 'Ángulo Real (Actual)', data: [...initialData], borderColor: '#f87171', borderWidth: 2, pointRadius: 0, tension: 0.1 }
+                    ]
+                },
+                options: {
+                    animation: false, responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'linear', title: { display: true, text: 'Punto de Datos', color: 'white' }, ticks: { color: 'white' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                        y: { title: { display: true, text: 'Ángulo (grados)', color: 'white' }, min: -35, max: 35, ticks: { color: 'white' }, grid: { color: 'rgba(255, 255, 255, 0.2)' } }
+                    },
+                    plugins: { legend: { labels: { color: 'white' } } }
+                }
+            });
+        }
+        
+        function toggleChartListener() {
+            const btn = document.getElementById('toggle-chart-btn');
+            const chartInfo = document.getElementById('chart-info');
+            
+            if (isChartActive) {
+                isChartActive = false;
+                btn.textContent = 'Encender Gráfica';
+                btn.classList.remove('active');
+                if(chartInfo) chartInfo.textContent = "Gráfica detenida.";
+            } else {
+                isChartActive = true;
+                if(!isSimulationRunning) {
+                    isSimulationRunning = true; 
+                    animate();
+                    const statusDisplay = document.getElementById('sim-status');
+                    statusDisplay.innerHTML = 'Estado: ACTIVO';
+                }
+                btn.textContent = 'Apagar Gráfica';
+                btn.classList.add('active');
+                if(chartInfo) chartInfo.textContent = "Gráfica activa";
+            }
+        }
+
+        function updateChart(setpoint, current) {
+            if (!pidChart) return;
+            const time = clock.getElapsedTime().toFixed(3);
+            
+            pidChart.data.labels.push(time);
+            pidChart.data.datasets[0].data.push(setpoint);
+            pidChart.data.datasets[1].data.push(current);
+
+            if (pidChart.data.labels.length > 50) {
+                pidChart.data.labels.shift();
+                pidChart.data.datasets[0].data.shift();
+                pidChart.data.datasets[1].data.shift();
+            }
+            pidChart.update('none'); 
+        }
+        init();
+    </script>
+</body>
+</html>
