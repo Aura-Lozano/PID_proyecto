@@ -510,7 +510,7 @@
             camera.lookAt(drone.position);
         }
 
-        // Se activa con la tecla 'P' o el botón. Prende o apaga el cerebro PID
+        // Se activa con la tecla 'P' o el botón. Prende o apaga el PID
         function togglePIDMode() {
             pidModeActive = !pidModeActive;
             const statusDisplay = document.getElementById('sim-status');
@@ -619,52 +619,54 @@
 // Creación del dron usando geometria básica 
         function createDrone() {
             const droneGroup = new THREE.Group();
-            const bodyGeometry = new THREE.BoxGeometry(2, 0.5, 2);
+            const bodyGeometry = new THREE.BoxGeometry(2, 0.5, 2);// cubo como cuerpo
             const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xcc00cc }); // Color magenta
             const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
             droneGroup.add(body);
             
-            const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 5);
+            const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 5);//cilindros brazos 
             const armMaterial = new THREE.MeshLambertMaterial({ color: 0xeeeeee });
             
             const arm1 = new THREE.Mesh(armGeometry, armMaterial);
-            arm1.rotation.z = Math.PI / 2;
-            arm1.rotation.y = Math.PI / 4;
+            arm1.rotation.z = Math.PI / 2; //Se encuentra acostado 
+            arm1.rotation.y = Math.PI / 4; //Se encuentra girado 45°
             droneGroup.add(arm1);
             
             const arm2 = new THREE.Mesh(armGeometry, armMaterial);
             arm2.rotation.z = Math.PI / 2;
             arm2.rotation.y = -Math.PI / 4;
             droneGroup.add(arm2);
-
+//Creación de los motores y las hélices, rectangulares y gris oscuro 
             const propGeom = new THREE.BoxGeometry(0.2, 0.05, 1.5);
             const propMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
-            
+            //Coordenadas de las 4 esquinas 
             const positions = [
                 {x: 1.7, z: 1.7}, {x: -1.7, z: -1.7},
                 {x: 1.7, z: -1.7}, {x: -1.7, z: 1.7}
             ];
             
             positions.forEach(pos => {
+                //Creacion de la hélice 
                 const prop = new THREE.Mesh(propGeom, propMat);
                 prop.position.set(pos.x, 0.3, pos.z);
                 prop.userData = { isPropeller: true };
                 droneGroup.add(prop);
-                
+                //Creación del motor debajo de la hélice 
                 const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.3), new THREE.MeshLambertMaterial({color: 0x888888}));
                 motor.position.set(pos.x, 0.15, pos.z);
                 droneGroup.add(motor);
             });
 
-            return droneGroup;
+            return droneGroup; //Se devuleve el dron armado 
         }
 
-        // Gráficas 
+        // Gráficas configuración 
         function initChart() {
+            //Preparamos 50 espacios vacios para los datos 
             const ctx = document.getElementById('pid-chart').getContext('2d');
             const initialLabels = Array.from({length: 50}, (_, i) => i);
             const initialData = Array(50).fill(null);
-            
+            //Se crea el objeto, usando una línea como tipo de gráfico
             pidChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -674,6 +676,7 @@
                         { label: 'Ángulo Real (Actual)', data: [...initialData], borderColor: '#f87171', borderWidth: 2, pointRadius: 0, tension: 0.1 }
                     ]
                 },
+                //Se desactiva la animación para que sea rápido 
                 options: {
                     animation: false, responsive: true, maintainAspectRatio: false,
                     scales: {
@@ -684,7 +687,7 @@
                 }
             });
         }
-        
+        // Función del boton pausar y reanudar gráfica 
         function toggleChartListener() {
             const btn = document.getElementById('toggle-chart-btn');
             const chartInfo = document.getElementById('chart-info');
@@ -711,18 +714,20 @@
         function updateChart(setpoint, current) {
             if (!pidChart) return;
             const time = clock.getElapsedTime().toFixed(3);
-            
+            //POnemos los datos en la gráfica 
             pidChart.data.labels.push(time);
             pidChart.data.datasets[0].data.push(setpoint);
             pidChart.data.datasets[1].data.push(current);
-
+// Si tenemos más de 50 datos borramos el más viejo, para no saturar y pues mantener los datoss más recientes 
             if (pidChart.data.labels.length > 50) {
                 pidChart.data.labels.shift();
                 pidChart.data.datasets[0].data.shift();
                 pidChart.data.datasets[1].data.shift();
             }
+            //Esa línea es un truco de rendimiento y visualización para que la simulación se vea fluida, porque la libreria Chart.js hace una animación suave y la línea no cambia de golpe.
             pidChart.update('none'); 
         }
+        //Inicio y ejecución 
         init();
     </script>
 </body>
