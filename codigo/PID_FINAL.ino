@@ -9,14 +9,17 @@ const int resolution = 16;
 int16_t Acc_rawX, Acc_rawY, Acc_rawZ, Gyr_rawX, Gyr_rawY, Gyr_rawZ;
 float Total_angle[2]; 
 
+// Variables para medir el tiempo
 unsigned long timeCurr, timePrev; 
 float elapsedTime;
 
 float PID, pwmLeft, pwmRight, error, previous_error;
 float pid_p=0, pid_i=0, pid_d=0;
 
+//Como una ESC es diferente, necesita recibir una señal PWM mayor para iniciar como el otro motor 
 int offset_left = 150;  
 
+// El motor cuando se acerca al setpoint disminuye throttle, cuando esta abajo aumenta y cuando esta arriba disminuye
 int direction = 1; 
 
 
@@ -29,6 +32,7 @@ double kd = 1.0;
 
 float desired_angle = 0;
 
+// Convierte los microsegundos al valor digital que entiende la ESP32
 void writeESC(int pin, int microseconds) {
   int duty = (microseconds * 65535) / 20000; 
   ledcWrite(pin, duty); 
@@ -42,7 +46,7 @@ void setup() {
 
   ledcAttach(pinMotorLeft, freq, resolution);
   ledcAttach(pinMotorRight, freq, resolution);
-
+// Envia una señal de mínimo a la ESC por 4 segundos 
   Serial.println("ARMANDO MOTORES (4 seg)...");
   writeESC(pinMotorLeft, 1000);
   writeESC(pinMotorRight, 1000);
@@ -60,14 +64,14 @@ void loop() {
   elapsedTime = (timeCurr - timePrev) / 1000.0;
   if(elapsedTime == 0) elapsedTime = 0.001;
 
-//IMU
+//IMU. Lee el sensor MPU6050
   Wire.beginTransmission(0x68); Wire.write(0x3B); Wire.endTransmission(false);
   Wire.requestFrom(0x68,6,true);
   Acc_rawX=Wire.read()<<8|Wire.read();
   Acc_rawY=Wire.read()<<8|Wire.read();
   Acc_rawZ=Wire.read()<<8|Wire.read();
   
-
+// Conversión de los datos del acelerometro a grados 
   float angle_pitch = atan(-1*(Acc_rawX/16384.0)/sqrt(pow((Acc_rawY/16384.0),2) + pow((Acc_rawZ/16384.0),2)))*57.296;
 
   Wire.beginTransmission(0x68); Wire.write(0x43); Wire.endTransmission(false);
@@ -75,6 +79,7 @@ void loop() {
   Gyr_rawX=Wire.read()<<8|Wire.read();
   Gyr_rawY=Wire.read()<<8|Wire.read();
   
+  //FILTRO COMPLEMENTARIO del acelerometro y el giroscopio para mejorar la lectura de la posición 
   float Gyro_rate = Gyr_rawY/131.0; 
   Total_angle[1] = 0.98 *(Total_angle[1] + Gyro_rate*elapsedTime) + 0.02*angle_pitch;
   
@@ -85,6 +90,7 @@ void loop() {
   pid_d = kd*((error - previous_error)/elapsedTime);
   PID = pid_p + pid_i + pid_d;
   
+  //Limitación del PID 
   if(PID < -400) PID=-400; if(PID > 400) PID=400;
 
 
@@ -94,7 +100,7 @@ void loop() {
 
   pwmLeft = pwmLeft + offset_left;
 
-
+// Se fija un mínimo y un máximo de PWM 
   if(pwmRight < 1050) pwmRight=1050; if(pwmRight > 1950) pwmRight=1950;
   if(pwmLeft < 1050) pwmLeft=1050;   if(pwmLeft > 1950) pwmLeft=1950;
 
