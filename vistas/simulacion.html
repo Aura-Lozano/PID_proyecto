@@ -178,6 +178,8 @@
         let isChartActive = true; 
         
         // ANÁLISIS
+
+        // Está función analiza de la gráfica que tan bien voló el dron. Revisa si fue estable y si alcanzó o no el ángulo deseado 
         window.analyzeData = function(isAuto = false) {
             const chart = Chart.getChart("pid-chart"); 
             const resultsPanel = document.getElementById('analysis-results');
@@ -242,7 +244,7 @@
 
             //Gráfica
             const htmlContent = `
-                <h3>📊 REPORTE DE INGENIERÍA PID</h3>
+                <h3> REPORTE DE INGENIERÍA PID</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
                         <small style="color:#aaa">Estabilidad (RMSE)</small><br>
@@ -283,7 +285,7 @@
         };
 
 
-        
+        // Aquí empieza la ejecución del mundo virtual, se agrega el escenario 
         function init() {
             scene = new THREE.Scene();
             scene.fog = new THREE.Fog(0x87CEEB, 1, 300); 
@@ -362,7 +364,7 @@
             }
         }
 
-
+// Esta función mueve el dron, actualiza la gráfica y muestra como nos movemos por el escenario virtual creado 
         function animate() {
             if (!isSimulationRunning) {
                 animationFrameId = null;
@@ -389,7 +391,7 @@
             renderer.render(scene, camera);
             updatePositionDisplay();
         }
-       
+       // Movimiento real del dron en la pantalla de acuerdo al PID 
         function updateDroneMovement(deltaTime) {
             if (!isSimulationRunning) return; 
             let velocity = new THREE.Vector3();
@@ -430,7 +432,7 @@
                 
                 currentRealAngle = Math.max(-60, Math.min(60, currentRealAngle));
                 
-                //AUTO-STOP 
+                //AUTO-STOP. Si ya diverge demasiado, para automáticamente la simulación y muestra el análisis en pantalla  
                 if (Math.abs(currentRealAngle) > 45) {
                     isSimulationRunning = false; 
                     
@@ -449,7 +451,7 @@
 
                 targetPitchRadians = currentRealAngle * (Math.PI / 180);
 
-                //Perturbaciones
+                //Perturbaciones. Al presionar las flechas perturbas el dron y el objetivo es observar si el PID es capaz de recuperarse 
                 if (keys['ARROWLEFT']) currentRealAngle += 80 * deltaTime; 
                 if (keys['ARROWRIGHT']) currentRealAngle -= 80 * deltaTime;
 
@@ -567,7 +569,7 @@
             
             valueDisplay.textContent = displayValue;
         };
-
+// Sliders que nos permiten modificar las ganancias y se reflejan en la pantalla.
         function setupSliderListeners() {
             const sliders = ['kp', 'ki', 'kd', 'setpoint', 'throttle', 'simulated-angle']; 
             sliders.forEach(id => {
@@ -584,7 +586,7 @@
                 parseFloat(document.getElementById('kd-slider').value)
             );
         }
-
+// Creación del dron usando geometria básica 
         function createDrone() {
             const droneGroup = new THREE.Group();
             const bodyGeometry = new THREE.BoxGeometry(2, 0.5, 2);
@@ -675,7 +677,7 @@
                 if(chartInfo) chartInfo.textContent = "Gráfica activa";
             }
         }
-
+//Esta función va graficando y actualizando lo que pasa, con linea verde a lo que queremos llegar y la linea roja lo que esta pasando. 
         function updateChart(setpoint, current) {
             if (!pidChart) return;
             const time = clock.getElapsedTime().toFixed(3);
